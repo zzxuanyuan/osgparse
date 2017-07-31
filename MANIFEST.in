@@ -1,0 +1,5 @@
+recursive-include tests *.py
+include LICENSE
+include AUTHORS
+include CHANGELOG
+include tox.ini

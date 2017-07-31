@@ -1,0 +1,15 @@
+# PyCharm
+
+*.py[co]
+data
+files
+test_*.py
+MANIFEST
+.converage
+.tox/
+.cache/
+*.egg-info/
+htmlcov/
+tests/data/*.ignore
+coverage.xml
+*.class
