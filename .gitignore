@@ -1,5 +1,6 @@
 # PyCharm
 
+*.data
 *.py[co]
 data
 files
