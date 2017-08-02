@@ -2,8 +2,6 @@
 
 *.data
 *.py[co]
-data
-files
 MANIFEST
 .converage
 .tox/

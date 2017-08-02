@@ -49,6 +49,7 @@ def test_parser_read_two_diff_items():
 	assert filecmp.cmp(tmp_path,expect_path)
 	os.remove(tmp_path)
 
+
 def test_parser_read_four_diff_items():
 	dir_path = os.path.dirname(os.path.realpath(__file__))
 	file_path = dir_path + "/data/four_diff_items"
@@ -64,11 +65,9 @@ def test_parser_read_four_diff_items():
 	sys.stdout = old_stdout
 	with open(tmp_path, "w") as o:
 		o.write(tmpstdout.getvalue())
-'''
 	expect_path = dir_path + "/files/expected_four_diff_items.ini"
 	assert filecmp.cmp(tmp_path,expect_path)
 	os.remove(tmp_path)
-'''
 
 def test_parser_read_three_same_items():
 	dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -79,18 +78,31 @@ def test_parser_read_three_same_items():
 		line = f.read()
 	parser = osgparse.parser.Parser()
 	snapshot = parser.read_line(line)
-	print "yes!!!!!!!!!!!!!!!!!!!!!!!!!"
-	print snapshot
-'''
 	old_stdout = sys.stdout
 	sys.stdout = tmpstdout = StringIO()
 	snapshot.dump()
 	sys.stdout = old_stdout
 	with open(tmp_path, "w") as o:
 		o.write(tmpstdout.getvalue())
-
-	expect_path = dir_path + "/files/expected_four_diff_items.ini"
+	expect_path = dir_path + "/files/expected_three_same_items.ini"
 	assert filecmp.cmp(tmp_path,expect_path)
 	os.remove(tmp_path)
-'''
 
+def test_parser_read_two_same_items_but_diff_resources():
+	dir_path = os.path.dirname(os.path.realpath(__file__))
+	file_path = dir_path + "/data/three_same_items_but_diff_resources"
+	tmp_path = dir_path + "/files/result_item.ini"
+	
+	with open(file_path, "r") as f:
+		line = f.read()
+	parser = osgparse.parser.Parser()
+	snapshot = parser.read_line(line)
+	old_stdout = sys.stdout
+	sys.stdout = tmpstdout = StringIO()
+	snapshot.dump()
+	sys.stdout = old_stdout
+	with open(tmp_path, "w") as o:
+		o.write(tmpstdout.getvalue())
+	expect_path = dir_path + "/files/expected_three_same_items_but_diff_resources.ini"
+	assert filecmp.cmp(tmp_path,expect_path)
+	os.remove(tmp_path)

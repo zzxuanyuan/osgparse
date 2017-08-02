@@ -8,6 +8,9 @@
 import sys
 import operator
 
+debug = 0
+debug_capture_item = []
+
 def extract_host(name):
 	split_list = name.split('@')
 	host = split_list[-1].strip()
@@ -97,9 +100,9 @@ class JobFactory:
 		state_dict = {"Owner":0,"Unclaimed":0,"Matched":0,"Claimed":0,"Preempting":0,"Backfill":0,"Drained":0}
 		host_set = set()
 		# type 2. need to verify if all items have the same attribute
-		resource = None
-		site = None
-		entry = None
+		resource = set()
+		site = set()
+		entry = set()
 		job_id = None
 		# type 3. need to find min or max among all items
 		daemon_start = None
@@ -121,27 +124,42 @@ class JobFactory:
 			else:
 				if item.job_id != job_id:
 					raise ValueError("Wrong job_id")
-			if resource == None:
-				resource = item.resource
+			if resource == False:
 				if item.resource == None:
 					raise ValueError("resource == None")
+				else:
+					resource.add(item.resource)
 			else:
-				if item.resource != resource:
-					raise ValueError("Wrong resource")
-			if site == None:
-				site = item.site
+				if item.resource not in resource:
+					resource.add(item.resource)
+					if debug > 0:
+						print "Wrong resource"
+					else:
+						pass	
+			if site == False:
 				if item.site == None:
 					raise ValueError("site == None")
+				else:
+					site.add(item.site)
 			else:
-				if item.site != site:
-					raise ValueError("Wrong site")
-			if entry == None:
-				entry = item.entry
+				if item.site not in site:
+					site.add(item.site)
+					if debug > 0:
+						print "Wrong site"
+					else:
+						pass	
+			if entry == False:
 				if item.entry == None:
 					raise ValueError("entry == None")
+				else:
+					entry.add(item.entry)
 			else:
-				if item.entry != entry:
-					raise ValueError("Wrong entry")
+				if item.entry not in entry:
+					entry.add(item.entry)
+					if debug > 0:
+						print "Wrong entry"
+					else:
+						pass	
 
 			# process type 3
 			if daemon_start == None:
@@ -186,7 +204,6 @@ class JobFactory:
 		activity = max(activity_dict.iteritems(), key=operator.itemgetter(1))[0]
 		state =  max(state_dict.iteritems(), key=operator.itemgetter(1))[0]
 		job = Job(desktop_time,activity,time_current,host_set,state,site,resource,entry,daemon_start,to_retire,to_die,job_id)
-
 		self.job_cnt += 1
 		return job
 
@@ -324,7 +341,7 @@ class Parser:
 			item = self._attr_parser(item_list[i])
 			if item.job_id == None:
 				item = self._handle_missing_job_id(item)
-				item.dump()
+#				item.dump()
 			if item.job_id in job_items_dict:
 				job_items_dict[item.job_id].append(item)
 			else:
@@ -361,115 +378,151 @@ class Parser:
 		if "Activity" in attr_dict:
 			activity = attr_dict["Activity"].strip("\"")
 		else:
-			try:
-				raise ValueError
-			except:
-				print "Activity is not contained"
+			if debug > 0:
+				try:
+					raise ValueError
+				except:
+					print "Activity is not contained"
+			else:
+				pass
 			deficiency = True
 			activity = None
 	
 		if "MyCurrentTime" in attr_dict:
 			time_current = int(attr_dict["MyCurrentTime"].strip())
 		else:
-			try:
-				raise ValueError
-			except:
-				print "MyCurrentTime is not contained"
+			if debug > 0:
+				try:
+					raise ValueError
+				except:
+					print "MyCurrentTime is not contained"
+			else:
+				pass
 			deficiency = True
 			time_current = None
 	
 		if "Name" in attr_dict:
 			name = attr_dict["Name"].strip("\"")
 		else:
-			try:
-				raise ValueError
-			except:
-				print "Name is not contained"
+			if debug > 0:
+				try:
+					raise ValueError
+				except:
+					print "Name is not contained"
+			else:
+				pass
 			deficiency = True
 			name = None
 	
 		if "State" in attr_dict:
 			state = attr_dict["State"].strip("\"")
 		else:
-			try:
-				raise ValueError
-			except:
-				print "State is not contained"
+			if debug > 0:
+				try:
+					raise ValueError
+				except:
+					print "State is not contained"
+			else:
+				pass
 			deficiency = True
 			state = None
 	
 		if "GLIDEIN_Site" in attr_dict:
 			site = attr_dict["GLIDEIN_Site"].strip("\"")
 		else:
-			try:
-				raise ValueError
-			except:
-				print "Site is not contained"
+			if debug > 0:
+				try:
+					raise ValueError
+				except:
+					print "Site is not contained"
+			else:
+				pass
 			deficiency = True
 			site = None
 	
 		if "GLIDEIN_ResourceName" in attr_dict:
 			resource = attr_dict["GLIDEIN_ResourceName"].strip("\"")
 		else:
-			try:
-				raise ValueError
-			except:
-				print "GLIDEIN_ResourceName is not contained"
+			if debug > 0:
+				try:
+					raise ValueError
+				except:
+					print "GLIDEIN_ResourceName is not contained"
+			else:
+				pass
 			deficiency = True
 			resource = None
 	
 		if "GLIDEIN_Entry_Name" in attr_dict:
 			entry = attr_dict["GLIDEIN_Entry_Name"].strip("\"")
 		else:
-			try:
-				raise ValueError
-			except:
-				print "GLIDEIN_Entry_Name is not contained"
+			if debug > 0:
+				try:
+					raise ValueError
+				except:
+					print "GLIDEIN_Entry_Name is not contained"
+			else:
+				pass
 			deficiency = True
 			entry = None
 	
 		if "DaemonStartTime" in attr_dict:
 			daemon_start = int(attr_dict["DaemonStartTime"].strip())
 		else:
-			try:
-				raise ValueError
-			except:
-				print "DaemonStartTime is not contained"
+			if debug > 0:
+				try:
+					raise ValueError
+				except:
+					print "DaemonStartTime is not contained"
+			else:
+				pass
 			deficiency = True
 			daemon_start = None
 
 		if "GLIDEIN_ToRetire" in attr_dict:
 			to_retire = int(attr_dict["GLIDEIN_ToRetire"].strip())
 		else:
-			try:
-				raise ValueError
-			except:
-				print "GLIDEIN_ToRetire is not contained"
+			if debug > 0:
+				try:
+					raise ValueError
+				except:
+					print "GLIDEIN_ToRetire is not contained"
+			else:
+				pass
 			deficiency = True
 			to_retire = None
 	
 		if "GLIDEIN_ToDie" in attr_dict:
 			to_die = int(attr_dict["GLIDEIN_ToDie"].strip())
 		else:
-			try:
-				raise ValueError
-			except:
-				print "GLIDEIN_ToDie is not contained"
+			if debug > 0:
+				try:
+					raise ValueError
+				except:
+					print "GLIDEIN_ToDie is not contained"
+			else:
+				pass
 			deficiency = True
 			to_die = None
 	
 		if "GLIDEIN_SITEWMS_JobId" in attr_dict:
 			job_id = attr_dict["GLIDEIN_SITEWMS_JobId"].strip("\"")
 		else:
-			try:
-				raise ValueError
-			except:
-				print "GLIDEIN_SITEWMS_JobId is not contained"
+			if debug > 0:
+				try:
+					raise ValueError
+				except:
+					print "GLIDEIN_SITEWMS_JobId is not contained"
+			else:
+				pass
 			deficiency = True
 			job_id = None
 		item = Item(activity,time_current,name,state,site,resource,entry,daemon_start,to_retire,to_die,job_id)
-		if deficiency == True:
-			item.dump()
+		if debug > 0:
+			if deficiency == True:
+				print item.job_id, "is missing some attribute(s)"
+			else:
+				print item.job_id, "is not missing any attribute"
 		return item
 
 	def read_line(self,line):
