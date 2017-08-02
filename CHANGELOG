@@ -11,4 +11,9 @@ Handle three corner cases that glidein jobs from PSC_Bridges, ISI, opensciencegr
 some attributes.
 
 
+Release 0.1.2 (Aug 2, 2017)
+----------------------------
+
+1. We found a case that two sites - 'SU-OG', 'Purdue' - can run the same job at the same snapshot.
+2. Some job in 'SU-OG' has two daemon names (111@SU-OG-151, 222@SU-OG-151) but with same job id and same host name (SU-OG-151).
 
