@@ -4,7 +4,6 @@
 *.py[co]
 data
 files
-test_*.py
 MANIFEST
 .converage
 .tox/
