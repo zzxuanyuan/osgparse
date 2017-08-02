@@ -2,3 +2,13 @@ Release 0.1.0 (Jul 31, 2017)
 ----------------------------
 
 Initial release. Accomplished parser that transforms snapshots from OSG to glidein jobs.
+
+
+Release 0.1.1 (Jul 31, 2017)
+----------------------------
+
+Handle three corner cases that glidein jobs from PSC_Bridges, ISI, opensciencegrid.org misses
+some attributes.
+
+
+
