@@ -21,7 +21,7 @@ def test_parser_read_single_item():
 	snapshot = parser.read_line(line)
 	old_stdout = sys.stdout
 	sys.stdout = tmpstdout = StringIO()
-	snapshot.dump()
+	snapshot.sorted_dump()
 	sys.stdout = old_stdout
 	with open(tmp_path, "w") as o:
 		o.write(tmpstdout.getvalue())
@@ -41,7 +41,7 @@ def test_parser_read_two_diff_items():
 	snapshot = parser.read_line(line)
 	old_stdout = sys.stdout
 	sys.stdout = tmpstdout = StringIO()
-	snapshot.dump()
+	snapshot.sorted_dump()
 	sys.stdout = old_stdout
 	with open(tmp_path, "w") as o:
 		o.write(tmpstdout.getvalue())
@@ -61,7 +61,7 @@ def test_parser_read_four_diff_items():
 	snapshot = parser.read_line(line)
 	old_stdout = sys.stdout
 	sys.stdout = tmpstdout = StringIO()
-	snapshot.dump()
+	snapshot.sorted_dump()
 	sys.stdout = old_stdout
 	with open(tmp_path, "w") as o:
 		o.write(tmpstdout.getvalue())
@@ -80,7 +80,7 @@ def test_parser_read_three_same_items():
 	snapshot = parser.read_line(line)
 	old_stdout = sys.stdout
 	sys.stdout = tmpstdout = StringIO()
-	snapshot.dump()
+	snapshot.sorted_dump()
 	sys.stdout = old_stdout
 	with open(tmp_path, "w") as o:
 		o.write(tmpstdout.getvalue())
@@ -99,7 +99,7 @@ def test_parser_read_two_same_items_but_diff_resources():
 	snapshot = parser.read_line(line)
 	old_stdout = sys.stdout
 	sys.stdout = tmpstdout = StringIO()
-	snapshot.dump()
+	snapshot.sorted_dump()
 	sys.stdout = old_stdout
 	with open(tmp_path, "w") as o:
 		o.write(tmpstdout.getvalue())

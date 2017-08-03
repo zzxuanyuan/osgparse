@@ -46,6 +46,20 @@ class Job:
 		print "to_die : ",self.to_die
 		print "job_id : ",self.job_id
 
+	def sorted_dump(self):
+		print "desktop_time : ",self.desktop_time
+		print "activity : ",self.activity
+		print "state : ",self.state
+		print "time_current : ",self.time_current
+		print "host_set : ",sorted(self.host_set)
+		print "site : ",sorted(self.site)
+		print "resource : ",sorted(self.resource)
+		print "entry : ",sorted(self.entry)
+		print "daemon_start : ",self.daemon_start
+		print "to_retire : ",self.to_retire
+		print "to_die : ",self.to_die
+		print "job_id : ",self.job_id
+
 class Item:
 
 	def __init__(self,activity,time_current,name,state,site,resource,entry,daemon_start,to_retire,to_die,job_id):
@@ -89,6 +103,12 @@ class SnapShot:
 		print "job_num : ",self.job_num
 		for key in self.job_dict:
 			self.job_dict[key].dump()
+
+	def sorted_dump(self):
+		print "desktop_time : ",self.desktop_time
+		print "job_num : ",self.job_num
+		for key in sorted(self.job_dict):
+			self.job_dict[key].sorted_dump()
 
 class JobFactory:
 	def __init__(self):
