@@ -6,10 +6,18 @@
 #!/usr/bin/python
 
 import sys
-import operator
+import osgparse.constants
 
-debug = 0
-debug_capture_item = []
+def print_dict(dictionary):
+	result = ""
+	cnt = 0
+	for key, value in sorted(dictionary.iteritems()):
+		cnt += 1
+		if cnt == len(dictionary):
+			result += "['" + key + "'" + ":" + str(value) + "]"
+		else:
+			result += "['" + key + "'" + ":" + str(value) + "], "
+	print result
 
 def extract_host(name):
 	split_list = name.split('@')
@@ -18,10 +26,10 @@ def extract_host(name):
 
 class Job:
 
-	def __init__(self,desktop_time,activity,time_current,host_set,state,site,resource,entry,daemon_start,to_retire,to_die,job_id):
+	def __init__(self,desktop_time,activity_dict,time_current,host_set,state_dict,site,resource,entry,daemon_start,to_retire,to_die,job_id):
 		self.desktop_time = desktop_time
-		self.activity = activity
-		self.state = state
+		self.activity_dict = activity_dict
+		self.state_dict = state_dict
 		self.time_current = time_current
 		self.host_set = host_set
 		self.site = site
@@ -34,8 +42,8 @@ class Job:
 
 	def dump(self):
 		print "desktop_time : ",self.desktop_time
-		print "activity : ",self.activity
-		print "state : ",self.state
+		print "activity_dict : ",print_dict(self.activity_dict)
+		print "state_dict : ",print_dict(self.state_dict)
 		print "time_current : ",self.time_current
 		print "host_set : ",self.host_set
 		print "site : ",self.site
@@ -48,8 +56,8 @@ class Job:
 
 	def sorted_dump(self):
 		print "desktop_time : ",self.desktop_time
-		print "activity : ",self.activity
-		print "state : ",self.state
+		print "activity_dict : ",print_dict(self.activity_dict)
+		print "state_dict : ",print_dict(self.state_dict)
 		print "time_current : ",self.time_current
 		print "host_set : ",sorted(self.host_set)
 		print "site : ",sorted(self.site)
@@ -152,7 +160,7 @@ class JobFactory:
 			else:
 				if item.resource not in resource:
 					resource.add(item.resource)
-					if debug > 0:
+					if osgparse.constants.DEBUG > 0:
 						print "Wrong resource"
 					else:
 						pass	
@@ -164,7 +172,7 @@ class JobFactory:
 			else:
 				if item.site not in site:
 					site.add(item.site)
-					if debug > 0:
+					if osgparse.constants.DEBUG > 0:
 						print "Wrong site"
 					else:
 						pass	
@@ -176,7 +184,7 @@ class JobFactory:
 			else:
 				if item.entry not in entry:
 					entry.add(item.entry)
-					if debug > 0:
+					if osgparse.constants.DEBUG > 0:
 						print "Wrong entry"
 					else:
 						pass	
@@ -221,9 +229,9 @@ class JobFactory:
 				else:
 					raise ValueError("Wrong to_die")
 
-		activity = max(activity_dict.iteritems(), key=operator.itemgetter(1))[0]
-		state =  max(state_dict.iteritems(), key=operator.itemgetter(1))[0]
-		job = Job(desktop_time,activity,time_current,host_set,state,site,resource,entry,daemon_start,to_retire,to_die,job_id)
+#		activity = max(activity_dict.iteritems(), key=operator.itemgetter(1))[0]
+#		state =  max(state_dict.iteritems(), key=operator.itemgetter(1))[0]
+		job = Job(desktop_time,activity_dict,time_current,host_set,state_dict,site,resource,entry,daemon_start,to_retire,to_die,job_id)
 		self.job_cnt += 1
 		return job
 
@@ -357,8 +365,11 @@ class Parser:
 		# job_items_dict stores a mapping between glidein job id to a list of items
 		job_items_dict = {}
 		item_list = items_string.split(', ')
+		job_dict = dict()
 		for i in range(len(item_list)):
 			item = self._attr_parser(item_list[i])
+			if item == None:
+				return job_dict
 			if item.job_id == None:
 				item = self._handle_missing_job_id(item)
 #				item.dump()
@@ -366,7 +377,6 @@ class Parser:
 				job_items_dict[item.job_id].append(item)
 			else:
 				job_items_dict[item.job_id] = [item]
-		job_dict = {}
 		for key in job_items_dict:
 			# make_job will combine multiple items and create a job object
 			job_items = job_items_dict[key]
@@ -385,6 +395,8 @@ class Parser:
 		Please node: some attributes might be missing and therefore we define missing attributes as 'None'. We must handle the case that job_id is 'None' and we do
 				that in _handle_missing_job_id() method in class Item.
 		"""
+		if item_string == "":
+			return None
 		attr_dict = {}
 		start_item = item_string.index("[")
 		end_item = item_string.rfind("]")
@@ -398,7 +410,7 @@ class Parser:
 		if "Activity" in attr_dict:
 			activity = attr_dict["Activity"].strip("\"")
 		else:
-			if debug > 0:
+			if osgparse.constants.DEBUG > 0:
 				try:
 					raise ValueError
 				except:
@@ -411,7 +423,7 @@ class Parser:
 		if "MyCurrentTime" in attr_dict:
 			time_current = int(attr_dict["MyCurrentTime"].strip())
 		else:
-			if debug > 0:
+			if osgparse.constants.DEBUG > 0:
 				try:
 					raise ValueError
 				except:
@@ -424,7 +436,7 @@ class Parser:
 		if "Name" in attr_dict:
 			name = attr_dict["Name"].strip("\"")
 		else:
-			if debug > 0:
+			if osgparse.constants.DEBUG > 0:
 				try:
 					raise ValueError
 				except:
@@ -437,7 +449,7 @@ class Parser:
 		if "State" in attr_dict:
 			state = attr_dict["State"].strip("\"")
 		else:
-			if debug > 0:
+			if osgparse.constants.DEBUG > 0:
 				try:
 					raise ValueError
 				except:
@@ -450,7 +462,7 @@ class Parser:
 		if "GLIDEIN_Site" in attr_dict:
 			site = attr_dict["GLIDEIN_Site"].strip("\"")
 		else:
-			if debug > 0:
+			if osgparse.constants.DEBUG > 0:
 				try:
 					raise ValueError
 				except:
@@ -463,7 +475,7 @@ class Parser:
 		if "GLIDEIN_ResourceName" in attr_dict:
 			resource = attr_dict["GLIDEIN_ResourceName"].strip("\"")
 		else:
-			if debug > 0:
+			if osgparse.constants.DEBUG > 0:
 				try:
 					raise ValueError
 				except:
@@ -476,7 +488,7 @@ class Parser:
 		if "GLIDEIN_Entry_Name" in attr_dict:
 			entry = attr_dict["GLIDEIN_Entry_Name"].strip("\"")
 		else:
-			if debug > 0:
+			if osgparse.constants.DEBUG > 0:
 				try:
 					raise ValueError
 				except:
@@ -489,7 +501,7 @@ class Parser:
 		if "DaemonStartTime" in attr_dict:
 			daemon_start = int(attr_dict["DaemonStartTime"].strip())
 		else:
-			if debug > 0:
+			if osgparse.constants.DEBUG > 0:
 				try:
 					raise ValueError
 				except:
@@ -502,7 +514,7 @@ class Parser:
 		if "GLIDEIN_ToRetire" in attr_dict:
 			to_retire = int(attr_dict["GLIDEIN_ToRetire"].strip())
 		else:
-			if debug > 0:
+			if osgparse.constants.DEBUG > 0:
 				try:
 					raise ValueError
 				except:
@@ -515,7 +527,7 @@ class Parser:
 		if "GLIDEIN_ToDie" in attr_dict:
 			to_die = int(attr_dict["GLIDEIN_ToDie"].strip())
 		else:
-			if debug > 0:
+			if osgparse.constants.DEBUG > 0:
 				try:
 					raise ValueError
 				except:
@@ -528,7 +540,7 @@ class Parser:
 		if "GLIDEIN_SITEWMS_JobId" in attr_dict:
 			job_id = attr_dict["GLIDEIN_SITEWMS_JobId"].strip("\"")
 		else:
-			if debug > 0:
+			if osgparse.constants.DEBUG > 0:
 				try:
 					raise ValueError
 				except:
@@ -538,7 +550,7 @@ class Parser:
 			deficiency = True
 			job_id = None
 		item = Item(activity,time_current,name,state,site,resource,entry,daemon_start,to_retire,to_die,job_id)
-		if debug > 0:
+		if osgparse.constants.DEBUG > 0:
 			if deficiency == True:
 				print item.job_id, "is missing some attribute(s)"
 			else:

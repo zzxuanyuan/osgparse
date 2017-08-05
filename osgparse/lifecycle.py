@@ -12,9 +12,22 @@ import operator
 import osgparse
 import osgparse.parser
 import osgparse.formatter
+import osgparse.constants
+import osgparse.constants
 
-debug = 0
-labeling = 1
+def max_dict(dictionary):
+	return max(dictionary.iteritems(), key=operator.itemgetter(1))[0]
+
+def print_dict(dictionary):
+	result = ""
+	cnt = 0
+	for key, value in sorted(dictionary.iteritems()):
+		cnt += 1
+		if cnt == len(dictionary):
+			result += "['" + key + "'" + ":" + str(value) + "]"
+		else:
+			result += "['" + key + "'" + ":" + str(value) + "], "
+	print result
 
 class JobLifecycle:
 
@@ -30,43 +43,44 @@ class JobLifecycle:
 		self.to_retire = job.to_retire
 		self.to_die = job.to_die
 		self.job_id = job.job_id
-		self.activity_dict = {"Idle":0,"Benchmarking":0,"Busy":0,"Suspended":0,"Retiring":0,"Vacating":0,"Killing":0}
-		self.state_dict = {"Owner":0,"Unclaimed":0,"Matched":0,"Claimed":0,"Preempting":0,"Backfill":0,"Drained":0}
-		self.activity_dict[job.activity] = 1
-		self.state_dict[job.state] = 1
-		if debug > 0:
+		self.activity_dict = job.activity_dict
+		self.state_dict = job.state_dict
+		if osgparse.constants.DEBUG > 0:
 			self.pair_activity_state_list = []
-			tup = (job.time_current, job.activity, job.state)
+			tup = (job.time_current, job.activity_dict, job.state_dict)
 			self.pair_activity_state_list.append(tup)
 		else:
-			self.last_activity = job.activity
-			self.last_state = job.state
+			self.last_activity = max_dict(job.activity_dict)
+			self.last_state = max_dict(job.state_dict)
 
 	def stop(self, end_time, desktop_end):
 		self.end_time = end_time
 		self.desktop_end = desktop_end
 
-	def stay(self, cur_time, activity, state, host_set):
+	def stay(self, cur_time, activity_dict, state_dict, host_set):
 		self.start_time = min(self.start_time, cur_time)
-		self.activity_dict[activity] += 1
-		self.state_dict[state] += 1
+		# We accumulate self.activity_dict and self.state_dict by their corresponding attributes in snapshot's acitivity_dict and state_dict
+		for key in activity_dict:
+			self.activity_dict[key] += activity_dict[key]
+		for key in state_dict:
+			self.state_dict[key] += state_dict[key]
 		self.host_set = self.host_set.union(host_set)
-		if debug > 0:
-			tup = (cur_time, activity, state)
+		if osgparse.constants.DEBUG > 0:
+			tup = (cur_time, activity_dict, state_dict)
 			self.pair_activity_state_list.append(tup)
 		else:
-			self.last_activity = activity
-			self.last_state = state
+			self.last_activity = max_dict(activity_dict)
+			self.last_state = max_dict(state_dict)
 
 	def get_last_state(self):
-		if debug > 0:
-			return self.pair_activity_state_list[-1][2]
+		if osgparse.constants.DEBUG > 0:
+			return max_dict(self.pair_activity_state_list[-1][2])
 		else:
 			return self.last_state
 
 	def get_last_activity(self):
-		if debug > 0:
-			return self.pair_activity_state_list[-1][1]
+		if osgparse.constants.DEBUG > 0:
+			return max_dict(self.pair_activity_state_list[-1][1])
 		else:
 			return self.last_activity
 
@@ -82,9 +96,9 @@ class JobLifecycle:
 		print "to_retire : ", self.to_retire
 		print "to_die : ", self.to_die
 		print "job_id : ", self.job_id
-		if debug > 0:
-			print "activity_dict : ", sorted(self.activity_dict)
-			print "state_dict : ", sorted(self.state_dict)
+		if osgparse.constants.DEBUG > 0:
+			print "activity_dict : ", print_dict(self.activity_dict)
+			print "state_dict : ", print_dict(self.state_dict)
 		else:
 			print "last_activity : ", self.last_activity
 			print "last_state : ", self.last_state
@@ -102,11 +116,11 @@ class LifecycleGenerator:
 		self.job_time_history_dict = dict()
 
 	def _format_lifecycle(self,lifecycle,end_snapshot_job_num):
-		lifecycle_formatter = osgparse.formatter.LifecycleFormatter(lifecycle,end_snapshot_job_num) # This is a completed job lifecycle and it should be parsed to labeling and filtering engine.
+		lifecycle_formatter = osgparse.formatter.LifecycleFormatter(lifecycle,end_snapshot_job_num) # This is a completed job lifecycle and it should be parsed to LABELING and filtering engine.
 
 	#	if pre_filtering:
 	#		lifecycle_formatter.filter_out(filter_attr_list)
-		if labeling:
+		if LABELING > 0:
 			lifecycle_formatter.labeling(self.job_freq_history_dict,self.job_time_history_dict)
 	#	if post_filtering:
 	#		lifecycle_formatter.filter_out(filter_attr_list)
@@ -114,6 +128,7 @@ class LifecycleGenerator:
 		return lifecycle_formatter.formatted_lifecycle
 
 	def generate(self,snapshot):
+		done_lifecycle_dict = dict()
 		if self.pre_lifecycle_dict == None and self.cur_lifecycle_dict == None and self.pre_snapshot == None and self.cur_snapshot == None and self.pre_job_set == None and self.cur_job_set == None:
 			self.pre_snapshot = snapshot
 			self.pre_job_set = set(self.pre_snapshot.extract_job_ids())
@@ -130,7 +145,7 @@ class LifecycleGenerator:
 			finish_job_set = self.pre_job_set - self.cur_job_set
 			begin_job_set = self.cur_job_set - self.pre_job_set
 			intersect_job_set = self.pre_job_set & self.cur_job_set
-			if debug > 0:
+			if osgparse.constants.DEBUG > 0:
 				print "finish job set : ", finish_job_set
 				print "begin job set : ", begin_job_set
 				print "intersect job set : ", intersect_job_set
@@ -139,21 +154,21 @@ class LifecycleGenerator:
 				inter_job = self.cur_snapshot.job_dict[inter]
 				pre_job = self.pre_snapshot.job_dict[inter]
 				if inter_job.daemon_start == inter_lifecycle.start_time or inter_job.host_set.intersection(pre_job.host_set):
-					inter_lifecycle.stay(inter_job.time_current,inter_job.activity,inter_job.state,inter_job.host_set)
+					inter_lifecycle.stay(inter_job.time_current,inter_job.activity_dict,inter_job.state_dict,inter_job.host_set)
 					self.cur_lifecycle_dict[inter] = inter_lifecycle
 				else:
 					finish_job_set.add(inter)
 					begin_job_set.add(inter)
-			done_format_dict = dict()
 			for fin in finish_job_set:
 				fin_job = self.pre_snapshot.job_dict[fin]
 				self.pre_lifecycle_dict[fin].stop(fin_job.time_current, fin_job.desktop_time)
-				done_format_dict[fin] = self._format_lifecycle(self.pre_lifecycle_dict[fin], self.cur_snapshot.job_num)
+				done_lifecycle_dict[fin] = self.pre_lifecycle_dict[fin]
+#				done_format_dict[fin] = self._format_lifecycle(self.pre_lifecycle_dict[fin], self.cur_snapshot.job_num)
 				self.job_time_history_dict[fin_job.job_id] = fin_job.daemon_start
-				if debug > 0:
-					print_format = done_format_dict[fin]
-					print_lifecycle = self.pre_lifecycle_dict[fin]
-					print print_format.job_id,",",print_format.duration,",",print_format.retire_runtime,",",print_format.kill_runtime,",",print_format.end_job_num,",",print_format.desktop_time_info['startDate'],",",print_format.desktop_time_info['endDate'],",",print_format.desktop_time_info['startHour'],",",print_format.desktop_time_info['startMinute'],",",print_format.desktop_time_info['meanHour'],",",print_format.desktop_time_info['meanMinute'],",",print_format.desktop_time_info['endHour'],",",print_format.desktop_time_info['endMinute'],",",print_format.host_set,",",print_format.site,",",print_format.resource,",",print_format.entry,",",print_lifecycle.start_time,",",print_lifecycle.end_time,",",print_format.preempted_freq,",",print_format.label
+#				if osgparse.constants.DEBUG > 0:
+#					print_format = done_format_dict[fin]
+#					print_lifecycle = self.pre_lifecycle_dict[fin]
+#					print print_format.job_id,",",print_format.duration,",",print_format.retire_runtime,",",print_format.kill_runtime,",",print_format.end_job_num,",",print_format.desktop_time_info['startDate'],",",print_format.desktop_time_info['endDate'],",",print_format.desktop_time_info['startHour'],",",print_format.desktop_time_info['startMinute'],",",print_format.desktop_time_info['meanHour'],",",print_format.desktop_time_info['meanMinute'],",",print_format.desktop_time_info['endHour'],",",print_format.desktop_time_info['endMinute'],",",print_format.host_set,",",print_format.site,",",print_format.resource,",",print_format.entry,",",print_lifecycle.start_time,",",print_lifecycle.end_time,",",print_format.preempted_freq,",",print_format.label
 				self.pre_lifecycle_dict.pop(fin)
 			for beg in begin_job_set:
 				job = self.cur_snapshot.job_dict[beg]
@@ -162,4 +177,4 @@ class LifecycleGenerator:
 			self.pre_job_set = self.cur_job_set
 			self.pre_lifecycle_dict = self.cur_lifecycle_dict
 			self.pre_snapshot = self.cur_snapshot
-			return done_format_dict
+		return done_lifecycle_dict
