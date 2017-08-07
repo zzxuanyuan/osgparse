@@ -12,6 +12,17 @@ import osgparse.lifecycle
 
 import osgparse.constants
 
+def print_dict(dictionary):
+	result = ""
+	cnt = 0
+	for key, value in sorted(dictionary.iteritems()):
+		cnt += 1
+		if cnt == len(dictionary):
+			result += "['" + key + "'" + ":" + str(value) + "]"
+		else:
+			result += "['" + key + "'" + ":" + str(value) + "], "
+	return result
+
 def test_lifecycle_fin_jobs_labeling():
 	osgparse.constants.init()
 	dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -34,6 +45,9 @@ def test_lifecycle_fin_jobs_labeling():
 					for l in sorted(finished_job_dict):
 						formatted_job = formatter.format_lifecycle(finished_job_dict[l],snapshot.job_num)
 						formatted_job.dump()
+			formatter.dump()
+			print "global freq dict : ", print_dict(osgparse.constants.JOB_FREQ_HISTORY_DICT)
+			print "global time dict : ", print_dict(osgparse.constants.JOB_TIME_HISTORY_DICT)
 			o.write(tmpstdout.getvalue())
 	expect_path = dir_path + "/files/expected_three_snapshots_labeling.ini"
 #	assert filecmp.cmp(tmp_path,expect_path)

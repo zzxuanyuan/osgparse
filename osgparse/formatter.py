@@ -151,4 +151,5 @@ class LifecycleFormatter:
 			self.job_freq_history_dict[self.lifecycle.job_id] = 1
 
 	def dump(self):
-		pass
+		print "job_freq_history_dict : ", print_dict(self.job_freq_history_dict)
+		print "job_time_history_dict : ", print_dict(self.job_time_history_dict)

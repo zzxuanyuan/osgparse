@@ -18,7 +18,7 @@ def test_lifecycle_fin_jobs():
 	file_path = dir_path + "/data/three_snapshots"
 	tmp_path = dir_path + "/files/result_three_snapshots.ini"
 
-	generator = osgparse.lifecycle.LifecycleGenerator()
+	generator = osgparse.lifecycle.LifecycleGenerator(osgparse.constants.JOB_FREQ_HISTORY_DICT, osgparse.constants.JOB_TIME_HISTORY_DICT)
 	parser = osgparse.parser.Parser()
         old_stdout = sys.stdout
         sys.stdout = tmpstdout = StringIO()
@@ -45,7 +45,7 @@ def test_lifecycle_with_multiple_items():
 	file_path = dir_path + "/data/three_snapshots_not_finish_with_multiple_items"
 	tmp_path = dir_path + "/files/result_three_snapshots_not_finish_with_multiple_items.ini"
 
-	generator = osgparse.lifecycle.LifecycleGenerator()
+	generator = osgparse.lifecycle.LifecycleGenerator(osgparse.constants.JOB_FREQ_HISTORY_DICT, osgparse.constants.JOB_TIME_HISTORY_DICT)
 	parser = osgparse.parser.Parser()
         old_stdout = sys.stdout
         sys.stdout = tmpstdout = StringIO()
@@ -73,7 +73,7 @@ def test_lifecycle_fin_jobs_with_multiple_items():
 	file_path = dir_path + "/data/four_snapshots_finish_job_with_multiple_items"
 	tmp_path = dir_path + "/files/result_four_snapshots_finish_job_with_multiple_items.ini"
 
-	generator = osgparse.lifecycle.LifecycleGenerator()
+	generator = osgparse.lifecycle.LifecycleGenerator(osgparse.constants.JOB_FREQ_HISTORY_DICT, osgparse.constants.JOB_TIME_HISTORY_DICT)
 	parser = osgparse.parser.Parser()
         old_stdout = sys.stdout
         sys.stdout = tmpstdout = StringIO()
