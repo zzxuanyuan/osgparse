@@ -1,0 +1,6 @@
+/mnt/home.centos.data/old_data/04072017.data
+/mnt/home.centos.data/old_data/04082017.data
+/mnt/home.centos.data/old_data/04092017.data
+/mnt/home.centos.data/old_data/04102017.data
+/mnt/home.centos.data/old_data/04112017.data
+/mnt/home.centos.data/old_data/04122017.data

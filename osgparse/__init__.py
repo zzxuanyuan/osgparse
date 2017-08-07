@@ -6,33 +6,40 @@
 # the BSD License: https://opensource.org/licenses/BSD-3-Clause
 
 from osgparse import cli
+import osgparse.parser
+import osgparse.lifecycle
+import osgparse.formatter
+import osgparse.constants
 
 __version__ = '0.1.1'
 
-def format(ifile, ofile):
-	preJobSet = set()
-	curJobSet = set()
-	preJobLifeCycleDict = {}
-	curJobLifeCycleDict = {}
-	preSnapShot = Parser.SnapShot("", {})
-	curSnapShot = Parser.SnapShot("", {})
-
-	print "1. Job Freq Hisotry Dict:", len(JobLifeCycle.jobFreqHistoryDict.keys())
-	print "1. Job Time Hisotry Dict:", len(JobLifeCycle.jobTimeHistoryDict.keys())
-
-	totalLineCount = 0
-
-	with open(ifile, "r") as lines:
-		for fname in lines:
-			tup = JobLifeCycle.generateLifeCycleFromFile(
-				fname, totalLineCount, preJobSet, curJobSet,
-				preJobLifeCycleDict, curJobLifeCycleDict, 
-				preSnapShot, curSnapShot)
-			totalLineCount += tup[0]
-			preJobSet = tup[1]
-			curJobSet = tup[2]
-			preJobLifeCycleDict = tup[3]
-			curJobLifeCycleDict = tup[4]
-			preSnapShot = tup[5]
-			curSnapShot = tup[6]
-
+def extract_date(snapshot_file):
+	path_list = snapshot_file.split("/")
+	fname = path_list[-1]
+	tmp_list = fname.split(".")
+	date_list = tmp_list[0]
+	date = date_list[0:2] + "/" + date_list[2:4] + "/" + date_list[6:8]
+	print date
+	return date
+	
+def format(**opts):
+	snapshot_date_list = []
+	snapshot_file_list = []
+	with open(opts['filename'], 'r') as snapshot_files:
+		for snapshot_file in snapshot_files:
+			snapshot_file = snapshot_file.strip("\n")
+			measure_date = extract_date(snapshot_file)
+			snapshot_date_list.append(measure_date)
+			snapshot_file_list.append(snapshot_file)
+	osgparse.constants.init(snapshot_date_list)
+	parser = osgparse.parser.Parser()
+	generator = osgparse.lifecycle.LifecycleGenerator(osgparse.constants.JOB_FREQ_HISTORY_DICT, osgparse.constants.JOB_TIME_HISTORY_DICT)
+	formatter = osgparse.formatter.LifecycleFormatter(osgparse.constants.JOB_FREQ_HISTORY_DICT, osgparse.constants.JOB_TIME_HISTORY_DICT, osgparse.constants.MEASURE_DATE_DICT)
+	for file_path in snapshot_file_list:
+		with open(file_path, 'r') as lines:
+			for line in lines:
+				snapshot = parser.read_line(line)
+				finished_job_dict = generator.generate(snapshot)
+				for l in finished_job_dict:
+					formatted_job = formatter.format_lifecycle(finished_job_dict[l],snapshot.job_num)
+					formatted_job.formatted_dump()

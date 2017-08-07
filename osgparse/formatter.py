@@ -79,10 +79,14 @@ class FormattedLifecycle:
 
 		self.end_job_num = end_snapshot_job_num
 		self.desktop_time_info = get_desktop_time_info(measure_date_dict, lifecycle.desktop_start, lifecycle.desktop_end)
+
+		self.start_time = lifecycle.start_time
+		self.end_time = lifecycle.end_time
 		self.host_set = lifecycle.host_set
 		self.site = lifecycle.site
 		self.resource = lifecycle.resource
 		self.entry = lifecycle.entry
+
 		self.last_activity = lifecycle.get_last_activity()
 		self.last_state = lifecycle.get_last_state()
 		self.preempted_freq = 0
@@ -102,6 +106,9 @@ class FormattedLifecycle:
 		print "last_state : ", self.last_state
 		print "preempted_freq : ", self.preempted_freq
 		print "label : ", self.label
+
+	def formatted_dump(self):
+		print self.job_id,",",self.duration,",",self.retire_runtime,",",self.kill_runtime,",",self.end_job_num,",",self.desktop_time_info['StartDate'],",",self.desktop_time_info['StartHour'],",",self.desktop_time_info['StartMinute'],",",self.desktop_time_info['StartHourMinute'],",",self.desktop_time_info['StartDateMinute'],",",self.desktop_time_info['MeanDate'],",",self.desktop_time_info['MeanHour'],",",self.desktop_time_info['MeanMinute'],",",self.desktop_time_info['MeanHourMinute'],",",self.desktop_time_info['MeanDateMinute'],",",self.desktop_time_info['EndDate'],",",self.desktop_time_info['EndHour'],",",self.desktop_time_info['EndMinute'],",",self.desktop_time_info['EndHourMinute'],",",self.desktop_time_info['EndDateMinute'],",",len(self.host_set),",",self.site,",",self.resource,",",self.entry,",",self.start_time,",",self.end_time,",",self.preempted_freq,",",self.label
 
 class LifecycleFormatter:
 
