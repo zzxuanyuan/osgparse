@@ -21,7 +21,7 @@ def print_dict(dictionary):
 def max_dict(dictionary):
         return max(dictionary.iteritems(), key=operator.itemgetter(1))[0]
 
-def get_desktop_time_info(desktop_start, desktop_end):
+def get_desktop_time_info(measure_date_dict, desktop_start, desktop_end):
 	start_time_list = desktop_start.split(".")
 	end_time_list = desktop_end.split(".")
 	time_start = start_time_list[0]
@@ -39,20 +39,31 @@ def get_desktop_time_info(desktop_start, desktop_end):
 	start_time = datetime.strptime(date_rep_start + " " + clock_start, "%m/%d/%y %H:%M:%S")
 	end_time = datetime.strptime(date_rep_end + " " + clock_end, "%m/%d/%y %H:%M:%S")
 	mean_time = start_time+(end_time-start_time)/2
+	date_rep_mean = mean_time.strftime("%m/%d/%y")
 	time_info_dict = {}
-	time_info_dict['startDate'] = date_rep_start
-	time_info_dict['endDate'] = date_rep_end
-	time_info_dict['startHour'] = start_time.hour
-	time_info_dict['startMinute'] = start_time.hour * 60 + start_time.minute
-	time_info_dict['meanHour'] = mean_time.hour
-	time_info_dict['meanMinute'] = mean_time.hour * 60 + mean_time.minute
-	time_info_dict['endHour'] = end_time.hour
-	time_info_dict['endMinute'] = end_time.hour * 60 + end_time.minute
+	date_dict_start = measure_date_dict[date_rep_start]
+	date_dict_mean = measure_date_dict[date_rep_mean]
+	date_dict_end = measure_date_dict[date_rep_end]
+	time_info_dict['StartDate'] = date_dict_start
+	time_info_dict['StartHour'] = start_time.hour
+	time_info_dict['StartMinute'] = start_time.minute
+	time_info_dict['StartHourMinute'] = start_time.hour * 60 + start_time.minute
+	time_info_dict['StartDateMinute'] = date_dict_start * 1440 + time_info_dict['StartHourMinute']
+	time_info_dict['MeanDate'] = date_dict_mean
+	time_info_dict['MeanHour'] = mean_time.hour
+	time_info_dict['MeanMinute'] = mean_time.minute
+	time_info_dict['MeanHourMinute'] = mean_time.hour * 60 + mean_time.minute
+	time_info_dict['MeanDateMinute'] = date_dict_mean * 1440 + time_info_dict['MeanHourMinute']
+	time_info_dict['EndDate'] = date_dict_end
+	time_info_dict['EndHour'] = end_time.hour
+	time_info_dict['EndMinute'] = end_time.minute
+	time_info_dict['EndHourMinute'] = end_time.hour * 60 + end_time.minute
+	time_info_dict['EndDateMinute'] = date_dict_end * 1440 + time_info_dict['EndHourMinute']
 	return time_info_dict
 
 class FormattedLifecycle:
 
-	def __init__(self,lifecycle,end_snapshot_job_num):
+	def __init__(self,measure_date_dict,lifecycle,end_snapshot_job_num):
 		self.job_id = lifecycle.job_id
 		self.duration = int(lifecycle.end_time) - int(lifecycle.start_time)
 
@@ -67,7 +78,7 @@ class FormattedLifecycle:
 			self.kill_runtime = None
 
 		self.end_job_num = end_snapshot_job_num
-		self.desktop_time_info = get_desktop_time_info(lifecycle.desktop_start, lifecycle.desktop_end)
+		self.desktop_time_info = get_desktop_time_info(measure_date_dict, lifecycle.desktop_start, lifecycle.desktop_end)
 		self.host_set = lifecycle.host_set
 		self.site = lifecycle.site
 		self.resource = lifecycle.resource
@@ -94,9 +105,10 @@ class FormattedLifecycle:
 
 class LifecycleFormatter:
 
-	def __init__(self,job_freq_history_dict,job_time_history_dict):
+	def __init__(self,job_freq_history_dict,job_time_history_dict,measure_date_dict):
 		self.job_freq_history_dict = job_freq_history_dict
 		self.job_time_history_dict = job_time_history_dict
+		self.measure_date_dict = measure_date_dict
 		self.lifecycle = None
 		self.formatted_lifecycle = None
 
@@ -105,7 +117,7 @@ class LifecycleFormatter:
 
 	def format_lifecycle(self,lifecycle,end_snapshot_job_num):
 		self.lifecycle = lifecycle
-		self.formatted_lifecycle = FormattedLifecycle(lifecycle,end_snapshot_job_num)
+		self.formatted_lifecycle = FormattedLifecycle(self.measure_date_dict,lifecycle,end_snapshot_job_num)
 		self._filter_out([])
 		self._labeling()
 		return self.formatted_lifecycle
