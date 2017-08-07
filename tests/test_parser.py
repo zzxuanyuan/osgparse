@@ -15,7 +15,7 @@ def test_parser_read_single_item():
 	osgparse.constants.init()
 	dir_path = os.path.dirname(os.path.realpath(__file__))
 	file_path = dir_path + "/data/single_item"
-	tmp_path = dir_path + "/files/result_item.ini"
+	tmp_path = dir_path + "/files/result_single_item.ini"
 	
 	with open(file_path, "r") as f:
 		line = f.read()
@@ -36,7 +36,7 @@ def test_parser_read_two_diff_items():
 	osgparse.constants.init()
 	dir_path = os.path.dirname(os.path.realpath(__file__))
 	file_path = dir_path + "/data/two_diff_items"
-	tmp_path = dir_path + "/files/result_item.ini"
+	tmp_path = dir_path + "/files/result_two_diff_items.ini"
 	
 	with open(file_path, "r") as f:
 		line = f.read()
@@ -57,7 +57,7 @@ def test_parser_read_four_diff_items():
 	osgparse.constants.init()
 	dir_path = os.path.dirname(os.path.realpath(__file__))
 	file_path = dir_path + "/data/four_diff_items"
-	tmp_path = dir_path + "/files/result_item.ini"
+	tmp_path = dir_path + "/files/result_four_diff_items.ini"
 	
 	with open(file_path, "r") as f:
 		line = f.read()
@@ -77,7 +77,7 @@ def test_parser_read_three_same_items():
 	osgparse.constants.init()
 	dir_path = os.path.dirname(os.path.realpath(__file__))
 	file_path = dir_path + "/data/three_same_items"
-	tmp_path = dir_path + "/files/result_item.ini"
+	tmp_path = dir_path + "/files/result_three_same_items.ini"
 	
 	with open(file_path, "r") as f:
 		line = f.read()
@@ -97,7 +97,7 @@ def test_parser_read_two_same_items_but_diff_resources():
 	osgparse.constants.init()
 	dir_path = os.path.dirname(os.path.realpath(__file__))
 	file_path = dir_path + "/data/three_same_items_but_diff_resources"
-	tmp_path = dir_path + "/files/result_item.ini"
+	tmp_path = dir_path + "/files/result_three_same_items_but_diff_resources.ini"
 	
 	with open(file_path, "r") as f:
 		line = f.read()

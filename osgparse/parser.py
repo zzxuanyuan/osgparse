@@ -161,7 +161,7 @@ class JobFactory:
 				if item.resource not in resource:
 					resource.add(item.resource)
 					if osgparse.constants.DEBUG > 0:
-						print "Wrong resource"
+						print "Add new resource : ",item.resource
 					else:
 						pass	
 			if site == False:
@@ -173,7 +173,7 @@ class JobFactory:
 				if item.site not in site:
 					site.add(item.site)
 					if osgparse.constants.DEBUG > 0:
-						print "Wrong site"
+						print "Add new site : ",item.site
 					else:
 						pass	
 			if entry == False:
@@ -185,7 +185,7 @@ class JobFactory:
 				if item.entry not in entry:
 					entry.add(item.entry)
 					if osgparse.constants.DEBUG > 0:
-						print "Wrong entry"
+						print "Add new entry : ",item.entry
 					else:
 						pass	
 
@@ -196,6 +196,7 @@ class JobFactory:
 					raise ValueError("daemon_start == None")
 			else:
 				if item.daemon_start != None:
+					# daemon_start time should be the minimum among a parallel job and that job's start_time is the very first snapshot's daemon_start
 					daemon_start = min(daemon_start,item.daemon_start)
 				else:
 					raise ValueError("Wrong daemon_start")
@@ -205,7 +206,8 @@ class JobFactory:
 					raise ValueError("time_current == None")
 			else:
 				if item.time_current != None:
-					time_current = min(time_current,item.time_current)
+					# time_current time should be the maximum among a parallel job and that job's end_time is the very last snapshot's time_current
+					time_current = max(time_current,item.time_current)
 				else:
 					raise ValueError("Wrong time_current")
 			if to_retire == None:
@@ -553,8 +555,6 @@ class Parser:
 		if osgparse.constants.DEBUG > 0:
 			if deficiency == True:
 				print item.job_id, "is missing some attribute(s)"
-			else:
-				print item.job_id, "is not missing any attribute"
 		return item
 
 	def read_line(self,line):

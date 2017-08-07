@@ -27,7 +27,7 @@ def print_dict(dictionary):
 			result += "['" + key + "'" + ":" + str(value) + "]"
 		else:
 			result += "['" + key + "'" + ":" + str(value) + "], "
-	print result
+	return result
 
 class JobLifecycle:
 
@@ -53,9 +53,14 @@ class JobLifecycle:
 			self.last_activity = max_dict(job.activity_dict)
 			self.last_state = max_dict(job.state_dict)
 
-	def stop(self, end_time, desktop_end):
+	def stop(self, end_time, desktop_end, to_retire, to_die):
+		"""end_time should be the maximum time_current among all items in the job.
+                   to_retire and to_die should be the maximums to_retire and to_die among all items in the job.
+		"""
 		self.end_time = end_time
 		self.desktop_end = desktop_end
+		self.to_retire = to_retire
+		self.to_die = to_die
 
 	def stay(self, cur_time, activity_dict, state_dict, host_set):
 		self.start_time = min(self.start_time, cur_time)
@@ -161,7 +166,7 @@ class LifecycleGenerator:
 					begin_job_set.add(inter)
 			for fin in finish_job_set:
 				fin_job = self.pre_snapshot.job_dict[fin]
-				self.pre_lifecycle_dict[fin].stop(fin_job.time_current, fin_job.desktop_time)
+				self.pre_lifecycle_dict[fin].stop(fin_job.time_current,fin_job.desktop_time,fin_job.to_retire,fin_job.to_die)
 				done_lifecycle_dict[fin] = self.pre_lifecycle_dict[fin]
 #				done_format_dict[fin] = self._format_lifecycle(self.pre_lifecycle_dict[fin], self.cur_snapshot.job_num)
 				self.job_time_history_dict[fin_job.job_id] = fin_job.daemon_start
