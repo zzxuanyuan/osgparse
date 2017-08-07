@@ -110,15 +110,15 @@ class JobLifecycle:
 
 class LifecycleGenerator:
 	
-	def __init__(self):
+	def __init__(self, job_freq_history_dict, job_time_history_dict):
 		self.pre_lifecycle_dict = None
 		self.cur_lifecycle_dict = None
 		self.pre_snapshot = None
 		self.cur_snapshot = None
 		self.pre_job_set = None
 		self.cur_job_set = None
-		self.job_freq_history_dict = dict()
-		self.job_time_history_dict = dict()
+		self.job_freq_history_dict = job_freq_history_dict
+		self.job_time_history_dict = job_time_history_dict
 
 	def _format_lifecycle(self,lifecycle,end_snapshot_job_num):
 		lifecycle_formatter = osgparse.formatter.LifecycleFormatter(lifecycle,end_snapshot_job_num) # This is a completed job lifecycle and it should be parsed to LABELING and filtering engine.

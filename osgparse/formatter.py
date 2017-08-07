@@ -7,6 +7,17 @@ import operator
 'JobId' , 'Duration' , 'MaxRetireTime' , 'MaxKillTime' , 'DesktopTimeMeanHour' , 'DesktopTimeMeanMinute' , 'DesktopTimeEndHour' , 'DesktopTimeEndMinute' , 'HostName' , 'SiteName' , 'ResourceName' , 'EntryName' , 'JobEndTime' , 'JobRetireTime' , 'JobDieTime' , 'PreemptionFrequency' , 'Class'
 """
 
+def print_dict(dictionary):
+	result = ""
+	cnt = 0
+	for key, value in sorted(dictionary.iteritems()):
+		cnt += 1
+		if cnt == len(dictionary):
+			result += "['" + key + "'" + ":" + str(value) + "]"
+		else:
+			result += "['" + key + "'" + ":" + str(value) + "], "
+	return result
+
 def max_dict(dictionary):
         return max(dictionary.iteritems(), key=operator.itemgetter(1))[0]
 
@@ -83,14 +94,23 @@ class FormattedLifecycle:
 
 class LifecycleFormatter:
 
-	def __init__(self,lifecycle,end_snapshot_job_num):
-		self.lifecycle = lifecycle
-		self.formatted_lifecycle = FormattedLifecycle(lifecycle,end_snapshot_job_num)
+	def __init__(self,job_freq_history_dict,job_time_history_dict):
+		self.job_freq_history_dict = job_freq_history_dict
+		self.job_time_history_dict = job_time_history_dict
+		self.lifecycle = None
+		self.formatted_lifecycle = None
 
-	def filter_out(self,attr_list):
+	def _filter_out(self,attr_list):
 		pass
 
-	def labeling(self,job_freq_history_dict,job_time_history_dict):
+	def format_lifecycle(self,lifecycle,end_snapshot_job_num):
+		self.lifecycle = lifecycle
+		self.formatted_lifecycle = FormattedLifecycle(lifecycle,end_snapshot_job_num)
+		self._filter_out([])
+		self._labeling()
+		return self.formatted_lifecycle
+
+	def _labeling(self):
 		last_activity = self.lifecycle.get_last_activity()
 		if int(self.lifecycle.end_time) < int(self.lifecycle.to_die) and int(self.lifecycle.end_time) > int(self.lifecycle.to_retire):
 			if last_activity == "Killing" or last_activity == "Vacating":
@@ -104,10 +124,10 @@ class LifecycleFormatter:
 				self.formatted_lifecycle.label = "Killed"
 			else:
 				self.formatted_lifecycle.label = last_activity+"Kill"
-		elif self.lifecycle.job_id in job_freq_history_dict:
-			if job_time_history_dict[self.lifecycle.job_id] != self.lifecycle.start_time:
-				job_freq_history_dict[self.lifecycle.job_id] += 1
-				self.formatted_lifecycle.preempted_freq = job_freq_history_dict[self.lifecycle.job_id]
+		elif self.lifecycle.job_id in self.job_freq_history_dict:
+			if self.job_time_history_dict[self.lifecycle.job_id] != self.lifecycle.start_time:
+				self.job_freq_history_dict[self.lifecycle.job_id] += 1
+				self.formatted_lifecycle.preempted_freq = self.job_freq_history_dict[self.lifecycle.job_id]
 				self.formatted_lifecycle.label = "Preempted"
 			else:
 				self.formatted_lifecycle.label = "NetworkIssue"
@@ -127,8 +147,8 @@ class LifecycleFormatter:
 			self.formatted_lifecycle.label = "Benchmarking"
 		else:
 			self.formatted_lifecycle.label = last_activity+"Unknown"
-		if self.lifecycle.job_id not in job_freq_history_dict:
-			job_freq_history_dict[self.lifecycle.job_id] = 1
+		if self.lifecycle.job_id not in self.job_freq_history_dict:
+			self.job_freq_history_dict[self.lifecycle.job_id] = 1
 
-	def dump_internal_lifecycle(self):
-		self.lifecycle.dump()
+	def dump(self):
+		pass
