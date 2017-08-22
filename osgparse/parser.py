@@ -102,6 +102,29 @@ class SnapShot:
 		self.desktop_time = desktop_time
 		self.job_dict = job_dict
 		self.job_num = len(job_dict)
+		self.job_num_resource_dict = self._categorize_by_resource(job_dict)
+		assert sum(self.job_num_resource_dict.values()) == self.job_num, "resource job sum is not equal to total job number"
+
+	def _categorize_by_resource(self, job_dict):
+		job_num_resource_dict = dict()
+		for job in job_dict:
+			if len(job_dict[job].resource) < 1:
+				print "Error: No Resource in Job"
+			else:
+				# convert resource set to string that splits each resource by "|"
+				cnt = 0
+				for r in job_dict[job].resource:
+					if cnt == 0:
+						resource = r
+						cnt += 1
+					else:
+						resource += "|" + r
+						cnt += 1
+			if resource not in job_num_resource_dict:
+				job_num_resource_dict[resource] = 1
+			else:
+				job_num_resource_dict[resource] += 1
+		return job_num_resource_dict
 
 	def extract_job_ids(self):
 		return self.job_dict.keys()

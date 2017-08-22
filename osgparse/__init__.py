@@ -41,5 +41,5 @@ def format(**opts):
 				snapshot = parser.read_line(line)
 				finished_job_dict = generator.generate(snapshot)
 				for l in finished_job_dict:
-					formatted_job = formatter.format_lifecycle(finished_job_dict[l],snapshot.job_num)
+					formatted_job = formatter.format_lifecycle(finished_job_dict[l],snapshot.job_num,snapshot.job_num_resource_dict)
 					formatted_job.formatted_dump()

@@ -63,21 +63,37 @@ def get_desktop_time_info(measure_date_dict, desktop_start, desktop_end):
 
 class FormattedLifecycle:
 
-	def __init__(self,measure_date_dict,lifecycle,end_snapshot_job_num):
+	def __init__(self,measure_date_dict,lifecycle,end_snapshot_job_num,end_snapshot_job_num_resource_dict):
 		self.job_id = lifecycle.job_id
 		self.duration = int(lifecycle.end_time) - int(lifecycle.start_time)
 
-		# {xd-login.opensciencegrid.org, PSC_Bridges, etc. might parse None as to_retire and to_die here
+		# {xd-login.opensciencegrid.org, PSC_Bridges, etc. might parse None as to_retire and to_die here. We set retire_runtime and kill_runtime as -100 if they do not exist.
 		if lifecycle.to_retire is not None:
 			self.retire_runtime = int(lifecycle.to_retire) - int(lifecycle.start_time)
 		else:
-			self.retire_runtime = None
+			self.retire_runtime = -100
 		if lifecycle.to_die is not None:
 			self.kill_runtime = int(lifecycle.to_die) - int(lifecycle.start_time)
 		else:
-			self.kill_runtime = None
+			self.kill_runtime = -100
 
 		self.end_job_num = end_snapshot_job_num
+
+		# convert resource set to string splitting by "|"
+		cnt = 0
+		for r in lifecycle.resource:
+			if cnt == 0:
+				resource = r
+				cnt += 1
+			else:
+				resource += "|" + r
+				cnt += 1
+
+		if resource not in end_snapshot_job_num_resource_dict:
+			self.end_resource_job_num = 0
+		else:
+			self.end_resource_job_num = end_snapshot_job_num_resource_dict[resource]
+
 		self.desktop_time_info = get_desktop_time_info(measure_date_dict, lifecycle.desktop_start, lifecycle.desktop_end)
 
 		self.start_time = lifecycle.start_time
@@ -108,7 +124,36 @@ class FormattedLifecycle:
 		print "label : ", self.label
 
 	def formatted_dump(self):
-		print self.job_id,",",self.duration,",",self.retire_runtime,",",self.kill_runtime,",",self.end_job_num,",",self.desktop_time_info['StartDate'],",",self.desktop_time_info['StartHour'],",",self.desktop_time_info['StartMinute'],",",self.desktop_time_info['StartHourMinute'],",",self.desktop_time_info['StartDateMinute'],",",self.desktop_time_info['MeanDate'],",",self.desktop_time_info['MeanHour'],",",self.desktop_time_info['MeanMinute'],",",self.desktop_time_info['MeanHourMinute'],",",self.desktop_time_info['MeanDateMinute'],",",self.desktop_time_info['EndDate'],",",self.desktop_time_info['EndHour'],",",self.desktop_time_info['EndMinute'],",",self.desktop_time_info['EndHourMinute'],",",self.desktop_time_info['EndDateMinute'],",",len(self.host_set),",",self.site,",",self.resource,",",self.entry,",",self.start_time,",",self.end_time,",",self.preempted_freq,",",self.label
+		# format site, resource and entry as elements are separated by "|" symbol. For example, "Purdue_Hadoop|SU_OSG"
+		string_site = None
+		string_resource = None
+		string_entry = None
+		cnt = 0
+		for site in self.site:
+			if cnt == 0:
+				string_site = site
+				cnt += 1
+			else:
+				string_site = string_set + "|" + site
+				cnt += 1
+		cnt = 0
+		for resource in self.resource:
+			if cnt == 0:
+				string_resource = resource
+				cnt += 1
+			else:
+				string_resource = string_resource + "|" + resource
+				cnt += 1
+		cnt = 0
+		for entry in self.entry:
+			if cnt == 0:
+				string_entry = entry
+				cnt += 1
+			else:
+				string_entry = string_entry + "|" + entry
+				cnt += 1
+
+		print self.job_id , "," , self.duration , "," , self.retire_runtime , "," , self.kill_runtime , "," , self.end_job_num , "," , self.end_resource_job_num , "," , self.desktop_time_info['StartDate'] , "," , self.desktop_time_info['StartHour'] , "," , self.desktop_time_info['StartMinute'] , "," , self.desktop_time_info['StartHourMinute'] , "," , self.desktop_time_info['StartDateMinute'] , "," , self.desktop_time_info['MeanDate'] , "," , self.desktop_time_info['MeanHour'] , "," , self.desktop_time_info['MeanMinute'] , "," , self.desktop_time_info['MeanHourMinute'] , "," , self.desktop_time_info['MeanDateMinute'] , "," , self.desktop_time_info['EndDate'] , "," , self.desktop_time_info['EndHour'] , "," , self.desktop_time_info['EndMinute'] , "," , self.desktop_time_info['EndHourMinute'] , "," , self.desktop_time_info['EndDateMinute'] , "," , len(self.host_set) , "," , string_site , "," , string_resource , "," , string_entry , "," , self.start_time , "," , self.end_time , "," , self.preempted_freq , "," , self.label
 
 class LifecycleFormatter:
 
@@ -122,16 +167,29 @@ class LifecycleFormatter:
 	def _filter_out(self,attr_list):
 		pass
 
-	def format_lifecycle(self,lifecycle,end_snapshot_job_num):
+	def format_lifecycle(self,lifecycle,end_snapshot_job_num,end_snapshot_job_num_resource_dict):
 		self.lifecycle = lifecycle
-		self.formatted_lifecycle = FormattedLifecycle(self.measure_date_dict,lifecycle,end_snapshot_job_num)
+		self.formatted_lifecycle = FormattedLifecycle(self.measure_date_dict,lifecycle,end_snapshot_job_num,end_snapshot_job_num_resource_dict)
 		self._filter_out([])
 		self._labeling()
 		return self.formatted_lifecycle
 
 	def _labeling(self):
 		last_activity = self.lifecycle.get_last_activity()
-		if int(self.lifecycle.end_time) < int(self.lifecycle.to_die) and int(self.lifecycle.end_time) > int(self.lifecycle.to_retire):
+		if self.lifecycle.to_die == None or self.lifecycle.to_retire == None:
+			if last_activity == "Killing" or last_activity == "Vacating":
+				self.formatted_lifecycle.label = "NoDieOrRetireKilled"
+			elif last_activity == "Retiring":
+				self.formatted_lifecycle.label = "NoDieOrRetireRetired"
+			elif last_activity == "Busy":
+				self.formatted_lifecycle.label = "NoDieOrRetirePreempted"
+			elif last_activity == "Idle":
+				self.formatted_lifecycle.label = "NoDieOrRetireSucceeded"
+			elif last_activity == "Benchmarking":
+				self.formatted_lifecycle.label = "NoDieOrRetireBenchmarking"
+			else:
+				self.formatted_lifecycle.label = "NoDieOrRetireUnknown"
+		elif int(self.lifecycle.end_time) < int(self.lifecycle.to_die) and int(self.lifecycle.end_time) > int(self.lifecycle.to_retire):
 			if last_activity == "Killing" or last_activity == "Vacating":
 				self.formatted_lifecycle.label = "Killed"
 			elif last_activity == "Retiring":
