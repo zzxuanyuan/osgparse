@@ -150,7 +150,7 @@ class LifecycleGenerator:
 			finish_job_set = self.pre_job_set - self.cur_job_set
 			begin_job_set = self.cur_job_set - self.pre_job_set
 			intersect_job_set = self.pre_job_set & self.cur_job_set
-			if osgparse.constants.DEBUG > 0:
+			if osgparse.constants.DEBUG > 1:
 				print "finish job set : ", finish_job_set
 				print "begin job set : ", begin_job_set
 				print "intersect job set : ", intersect_job_set

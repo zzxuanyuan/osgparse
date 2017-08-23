@@ -183,7 +183,7 @@ class JobFactory:
 			else:
 				if item.resource not in resource:
 					resource.add(item.resource)
-					if osgparse.constants.DEBUG > 0:
+					if osgparse.constants.DEBUG > 1:
 						print "Add new resource : ",item.resource
 					else:
 						pass	
@@ -195,7 +195,7 @@ class JobFactory:
 			else:
 				if item.site not in site:
 					site.add(item.site)
-					if osgparse.constants.DEBUG > 0:
+					if osgparse.constants.DEBUG > 1:
 						print "Add new site : ",item.site
 					else:
 						pass	
@@ -207,7 +207,7 @@ class JobFactory:
 			else:
 				if item.entry not in entry:
 					entry.add(item.entry)
-					if osgparse.constants.DEBUG > 0:
+					if osgparse.constants.DEBUG > 1:
 						print "Add new entry : ",item.entry
 					else:
 						pass	
@@ -435,7 +435,7 @@ class Parser:
 		if "Activity" in attr_dict:
 			activity = attr_dict["Activity"].strip("\"")
 		else:
-			if osgparse.constants.DEBUG > 0:
+			if osgparse.constants.DEBUG > 1:
 				try:
 					raise ValueError
 				except:
@@ -448,7 +448,7 @@ class Parser:
 		if "MyCurrentTime" in attr_dict:
 			time_current = int(attr_dict["MyCurrentTime"].strip())
 		else:
-			if osgparse.constants.DEBUG > 0:
+			if osgparse.constants.DEBUG > 1:
 				try:
 					raise ValueError
 				except:
@@ -461,7 +461,7 @@ class Parser:
 		if "Name" in attr_dict:
 			name = attr_dict["Name"].strip("\"")
 		else:
-			if osgparse.constants.DEBUG > 0:
+			if osgparse.constants.DEBUG > 1:
 				try:
 					raise ValueError
 				except:
@@ -474,7 +474,7 @@ class Parser:
 		if "State" in attr_dict:
 			state = attr_dict["State"].strip("\"")
 		else:
-			if osgparse.constants.DEBUG > 0:
+			if osgparse.constants.DEBUG > 1:
 				try:
 					raise ValueError
 				except:
@@ -487,7 +487,7 @@ class Parser:
 		if "GLIDEIN_Site" in attr_dict:
 			site = attr_dict["GLIDEIN_Site"].strip("\"")
 		else:
-			if osgparse.constants.DEBUG > 0:
+			if osgparse.constants.DEBUG > 1:
 				try:
 					raise ValueError
 				except:
@@ -500,7 +500,7 @@ class Parser:
 		if "GLIDEIN_ResourceName" in attr_dict:
 			resource = attr_dict["GLIDEIN_ResourceName"].strip("\"")
 		else:
-			if osgparse.constants.DEBUG > 0:
+			if osgparse.constants.DEBUG > 1:
 				try:
 					raise ValueError
 				except:
@@ -513,7 +513,7 @@ class Parser:
 		if "GLIDEIN_Entry_Name" in attr_dict:
 			entry = attr_dict["GLIDEIN_Entry_Name"].strip("\"")
 		else:
-			if osgparse.constants.DEBUG > 0:
+			if osgparse.constants.DEBUG > 1:
 				try:
 					raise ValueError
 				except:
@@ -526,7 +526,7 @@ class Parser:
 		if "DaemonStartTime" in attr_dict:
 			daemon_start = int(attr_dict["DaemonStartTime"].strip())
 		else:
-			if osgparse.constants.DEBUG > 0:
+			if osgparse.constants.DEBUG > 1:
 				try:
 					raise ValueError
 				except:
@@ -539,7 +539,7 @@ class Parser:
 		if "GLIDEIN_ToRetire" in attr_dict:
 			to_retire = int(attr_dict["GLIDEIN_ToRetire"].strip())
 		else:
-			if osgparse.constants.DEBUG > 0:
+			if osgparse.constants.DEBUG > 1:
 				try:
 					raise ValueError
 				except:
@@ -552,7 +552,7 @@ class Parser:
 		if "GLIDEIN_ToDie" in attr_dict:
 			to_die = int(attr_dict["GLIDEIN_ToDie"].strip())
 		else:
-			if osgparse.constants.DEBUG > 0:
+			if osgparse.constants.DEBUG > 1:
 				try:
 					raise ValueError
 				except:
@@ -565,7 +565,7 @@ class Parser:
 		if "GLIDEIN_SITEWMS_JobId" in attr_dict:
 			job_id = attr_dict["GLIDEIN_SITEWMS_JobId"].strip("\"")
 		else:
-			if osgparse.constants.DEBUG > 0:
+			if osgparse.constants.DEBUG > 1:
 				try:
 					raise ValueError
 				except:
@@ -575,7 +575,7 @@ class Parser:
 			deficiency = True
 			job_id = None
 		item = Item(activity,time_current,name,state,site,resource,entry,daemon_start,to_retire,to_die,job_id)
-		if osgparse.constants.DEBUG > 0:
+		if osgparse.constants.DEBUG > 1:
 			if deficiency == True:
 				print item.job_id, "is missing some attribute(s)"
 		return item
