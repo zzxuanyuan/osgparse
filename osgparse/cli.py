@@ -21,7 +21,8 @@ def create_parser():
 
 	parser.add_argument('filename', help='list of snapshot files that is used to generate job instances')
 	parser.add_argument('-i', '--infile', help='the snapshot file as the input')
-	parser.add_argument('-o', '--outfile', help='the job instances as the output')
+	parser.add_argument('-o', '--outfile', help='the job instances as the output or the time series as the output')
+	parser.add_argument('-c', '--command', help='the function to process the data')
 	parser.add_argument('-v', '--version', action='version',version=osgparse.__version__)
 
 	return parser
@@ -38,5 +39,9 @@ def main(args=None):
 
 	opts = vars(args)
 	print opts
-	osgparse.format(**opts)	
+	if args.command == "format":
+		osgparse.format(**opts)
+	elif args.command == "timeseries":
+		osgparse.timeseries(**opts)
+
 	return 0

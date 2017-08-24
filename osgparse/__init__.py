@@ -9,6 +9,7 @@ from osgparse import cli
 import osgparse.parser
 import osgparse.lifecycle
 import osgparse.formatter
+import osgparse.recorder
 import osgparse.constants
 
 __version__ = '0.1.1'
@@ -43,3 +44,22 @@ def format(**opts):
 				for l in finished_job_dict:
 					formatted_job = formatter.format_lifecycle(finished_job_dict[l],snapshot.job_num,snapshot.job_num_resource_dict)
 					formatted_job.formatted_dump()
+
+def timeseries(**opts):
+	snapshot_date_list = []
+	snapshot_file_list = []
+	with open(opts['filename'], 'r') as snapshot_files:
+		for snapshot_file in snapshot_files:
+			snapshot_file = snapshot_file.strip("\n")
+			measure_date = extract_date(snapshot_file)
+			snapshot_date_list.append(measure_date)
+			snapshot_file_list.append(snapshot_file)
+	osgparse.constants.init(snapshot_date_list)
+	parser = osgparse.parser.Parser()
+	recorder = osgparse.recorder.TimeseriesRecorder(osgparse.constants.MEASURE_DATE_DICT)
+	for file_path in snapshot_file_list:
+		with open(file_path, 'r') as lines:
+			for line in lines:
+				snapshot = parser.read_line(line)
+				recorder.record(snapshot)
+	recorder.dump(opts['outfile'])
