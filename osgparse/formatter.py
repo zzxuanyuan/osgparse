@@ -150,7 +150,7 @@ class FormattedLifecycle:
 				string_site = site
 				cnt += 1
 			else:
-				string_site = string_set + "|" + site
+				string_site = string_site + "|" + site
 				cnt += 1
 		cnt = 0
 		for resource in self.resource:
