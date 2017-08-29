@@ -36,6 +36,9 @@ def format(**opts):
 	parser = osgparse.parser.Parser()
 	generator = osgparse.lifecycle.LifecycleGenerator(osgparse.constants.JOB_FREQ_HISTORY_DICT, osgparse.constants.JOB_TIME_HISTORY_DICT)
 	formatter = osgparse.formatter.LifecycleFormatter(osgparse.constants.JOB_FREQ_HISTORY_DICT, osgparse.constants.JOB_TIME_HISTORY_DICT, osgparse.constants.MEASURE_DATE_DICT)
+	file_to_write = open(opts['outfile'], 'w')
+	column_names_string = "JobId" + "," + "Duration" + "," + "MaxRetireTime" + "," + "MaxKillTime" + "," + "TotalJobNumber" + "," + "ResourceJobNumber" + "," + "DesktopStartDate" + "," + "DesktopStartHour" + "," + "DesktopStartMinute" + "," + "DesktopStartHourMinute" + "," + "DesktopStartDateMinute" + "," + "DesktopMeanDate" + "," + "DesktopMeanHour" + "," + "DesktopMeanMinute" + "," + "DesktopMeanHourMinute" + "," + "DesktopMeanDateMinute" + "," + "DesktopEndDate" + "," + "DesktopEndHour" + "," + "DesktopEndMinute" + "," + "DesktopEndHourMinute" + "," + "DesktopEndDateMinute" + "," + "NumberOfHost" + "," + "SiteNames" + "," + "ResourceNames" + "," + "EntryNames" + "," + "JobStartTime" + "," + "JobEndTime" + "," + "PreemptionFrequency" + "," + "Class" + "\n"
+	file_to_write.write(column_names_string)
 	for file_path in snapshot_file_list:
 		with open(file_path, 'r') as lines:
 			for line in lines:
@@ -43,7 +46,8 @@ def format(**opts):
 				finished_job_dict = generator.generate(snapshot)
 				for l in finished_job_dict:
 					formatted_job = formatter.format_lifecycle(finished_job_dict[l],snapshot.job_num,snapshot.job_num_resource_dict)
-					formatted_job.formatted_dump()
+					formatted_job.formatted_dump(file_to_write)
+	file_to_write.close()
 
 def timeseries(**opts):
 	snapshot_date_list = []

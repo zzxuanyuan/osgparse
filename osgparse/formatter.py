@@ -139,7 +139,7 @@ class FormattedLifecycle:
 		print "preempted_freq : ", self.preempted_freq
 		print "label : ", self.label
 
-	def formatted_dump(self):
+	def formatted_dump(self, outfile):
 		# format site, resource and entry as elements are separated by "|" symbol. For example, "Purdue_Hadoop|SU_OSG"
 		string_site = None
 		string_resource = None
@@ -170,9 +170,9 @@ class FormattedLifecycle:
 				cnt += 1
 		# do not add whitespace between attributes because it makes life easier for pandas to read columns
 		if osgparse.constants.DEBUG > 0:
-			print self.job_id,",",self.duration,",",self.label,",",self._print_activity_state_list()
+			outfile.write(self.job_id + "," + self.duration + "," + self.label + "," + self._print_activity_state_list())
 		else:
-			print self.job_id,",",self.duration,",",self.retire_runtime,",",self.kill_runtime,",",self.end_job_num,",",self.end_resource_job_num,",",self.desktop_time_info['StartDate'],",",self.desktop_time_info['StartHour'],",",self.desktop_time_info['StartMinute'],",",self.desktop_time_info['StartHourMinute'],",",self.desktop_time_info['StartDateMinute'],",",self.desktop_time_info['MeanDate'],",",self.desktop_time_info['MeanHour'],",",self.desktop_time_info['MeanMinute'],",",self.desktop_time_info['MeanHourMinute'],",",self.desktop_time_info['MeanDateMinute'],",",self.desktop_time_info['EndDate'],",",self.desktop_time_info['EndHour'],",",self.desktop_time_info['EndMinute'],",",self.desktop_time_info['EndHourMinute'],",",self.desktop_time_info['EndDateMinute'],",",len(self.host_set),",",string_site,",",string_resource,",",string_entry,",",self.start_time,",",self.end_time,",",self.preempted_freq,",",self.label
+			outfile.write(str(self.job_id) + "," + str(self.duration) + "," + str(self.retire_runtime) + "," + str(self.kill_runtime) + "," + str(self.end_job_num) + "," + str(self.end_resource_job_num) + "," + str(self.desktop_time_info['StartDate']) + "," + str(self.desktop_time_info['StartHour']) + "," + str(self.desktop_time_info['StartMinute']) + "," + str(self.desktop_time_info['StartHourMinute']) + "," + str(self.desktop_time_info['StartDateMinute']) + "," + str(self.desktop_time_info['MeanDate']) + "," + str(self.desktop_time_info['MeanHour']) + "," + str(self.desktop_time_info['MeanMinute']) + "," + str(self.desktop_time_info['MeanHourMinute']) + "," + str(self.desktop_time_info['MeanDateMinute']) + "," + str(self.desktop_time_info['EndDate']) + "," + str(self.desktop_time_info['EndHour']) + "," + str(self.desktop_time_info['EndMinute']) + "," + str(self.desktop_time_info['EndHourMinute']) + "," + str(self.desktop_time_info['EndDateMinute']) + "," + str(len(self.host_set)) + "," + string_site + "," + string_resource + "," + string_entry + "," + str(self.start_time) + "," + str(self.end_time) + "," + str(self.preempted_freq) + "," + self.label + "\n")
 
 class LifecycleFormatter:
 
