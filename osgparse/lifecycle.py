@@ -169,7 +169,7 @@ class LifecycleGenerator:
 				self.pre_lifecycle_dict[fin].stop(fin_job.time_current,fin_job.desktop_time,fin_job.to_retire,fin_job.to_die)
 				done_lifecycle_dict[fin] = self.pre_lifecycle_dict[fin]
 #				done_format_dict[fin] = self._format_lifecycle(self.pre_lifecycle_dict[fin], self.cur_snapshot.job_num)
-				self.job_time_history_dict[fin_job.job_id] = fin_job.daemon_start
+#				self.job_time_history_dict[fin_job.job_id] = fin_job.daemon_start
 #				if osgparse.constants.DEBUG > 0:
 #					print_format = done_format_dict[fin]
 #					print_lifecycle = self.pre_lifecycle_dict[fin]
