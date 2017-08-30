@@ -100,6 +100,7 @@ class FormattedLifecycle:
 		self.start_time = lifecycle.start_time
 		self.end_time = lifecycle.end_time
 		self.host_set = lifecycle.host_set
+		self.name_set = lifecycle.name_set
 		self.site = lifecycle.site
 		self.resource = lifecycle.resource
 		self.entry = lifecycle.entry
@@ -131,6 +132,7 @@ class FormattedLifecycle:
 		print "kill_runtime : ", self.kill_runtime
 		print "desktop_time_info : ", print_dict(self.desktop_time_info)
 		print "host_set : ", self.host_set
+		print "name_set : ", self.name_set
 		print "site : ", self.site
 		print "resource : ", self.resource
 		print "entry : ", self.entry
@@ -172,7 +174,7 @@ class FormattedLifecycle:
 		if osgparse.constants.DEBUG > 0:
 			outfile.write(self.job_id + "," + self.duration + "," + self.label + "," + self._print_activity_state_list())
 		else:
-			outfile.write(str(self.job_id) + "," + str(self.duration) + "," + str(self.retire_runtime) + "," + str(self.kill_runtime) + "," + str(self.end_job_num) + "," + str(self.end_resource_job_num) + "," + str(self.desktop_time_info['StartDate']) + "," + str(self.desktop_time_info['StartHour']) + "," + str(self.desktop_time_info['StartMinute']) + "," + str(self.desktop_time_info['StartHourMinute']) + "," + str(self.desktop_time_info['StartDateMinute']) + "," + str(self.desktop_time_info['MeanDate']) + "," + str(self.desktop_time_info['MeanHour']) + "," + str(self.desktop_time_info['MeanMinute']) + "," + str(self.desktop_time_info['MeanHourMinute']) + "," + str(self.desktop_time_info['MeanDateMinute']) + "," + str(self.desktop_time_info['EndDate']) + "," + str(self.desktop_time_info['EndHour']) + "," + str(self.desktop_time_info['EndMinute']) + "," + str(self.desktop_time_info['EndHourMinute']) + "," + str(self.desktop_time_info['EndDateMinute']) + "," + str(len(self.host_set)) + "," + string_site + "," + string_resource + "," + string_entry + "," + str(self.start_time) + "," + str(self.end_time) + "," + str(self.preempted_freq) + "," + self.label + "\n")
+			outfile.write(str(self.job_id) + "," + str(self.duration) + "," + str(self.retire_runtime) + "," + str(self.kill_runtime) + "," + str(self.end_job_num) + "," + str(self.end_resource_job_num) + "," + str(self.desktop_time_info['StartDate']) + "," + str(self.desktop_time_info['StartHour']) + "," + str(self.desktop_time_info['StartMinute']) + "," + str(self.desktop_time_info['StartHourMinute']) + "," + str(self.desktop_time_info['StartDateMinute']) + "," + str(self.desktop_time_info['MeanDate']) + "," + str(self.desktop_time_info['MeanHour']) + "," + str(self.desktop_time_info['MeanMinute']) + "," + str(self.desktop_time_info['MeanHourMinute']) + "," + str(self.desktop_time_info['MeanDateMinute']) + "," + str(self.desktop_time_info['EndDate']) + "," + str(self.desktop_time_info['EndHour']) + "," + str(self.desktop_time_info['EndMinute']) + "," + str(self.desktop_time_info['EndHourMinute']) + "," + str(self.desktop_time_info['EndDateMinute']) + "," + str(len(self.name_set)) + "," + string_site + "," + string_resource + "," + string_entry + "," + str(self.start_time) + "," + str(self.end_time) + "," + str(self.preempted_freq) + "," + self.label + "\n")
 
 class LifecycleFormatter:
 

@@ -26,12 +26,13 @@ def extract_host(name):
 
 class Job:
 
-	def __init__(self,desktop_time,activity_dict,time_current,host_set,state_dict,site,resource,entry,daemon_start,to_retire,to_die,job_id):
+	def __init__(self,desktop_time,activity_dict,time_current,host_set,name_set,state_dict,site,resource,entry,daemon_start,to_retire,to_die,job_id):
 		self.desktop_time = desktop_time
 		self.activity_dict = activity_dict
 		self.state_dict = state_dict
 		self.time_current = time_current
 		self.host_set = host_set
+		self.name_set = name_set
 		self.site = site
 		self.resource = resource
 		self.entry = entry
@@ -46,6 +47,7 @@ class Job:
 		print "state_dict : ",print_dict(self.state_dict)
 		print "time_current : ",self.time_current
 		print "host_set : ",self.host_set
+		print "name_set : ",self.name_set
 		print "site : ",self.site
 		print "resource : ",self.resource
 		print "entry : ",self.entry
@@ -60,6 +62,7 @@ class Job:
 		print "state_dict : ",print_dict(self.state_dict)
 		print "time_current : ",self.time_current
 		print "host_set : ",sorted(self.host_set)
+		print "name_set : ",sorted(self.name_set)
 		print "site : ",sorted(self.site)
 		print "resource : ",sorted(self.resource)
 		print "entry : ",sorted(self.entry)
@@ -150,6 +153,7 @@ class JobFactory:
 		activity_dict = {"Idle":0,"Benchmarking":0,"Busy":0,"Suspended":0,"Retiring":0,"Vacating":0,"Killing":0}
 		state_dict = {"Owner":0,"Unclaimed":0,"Matched":0,"Claimed":0,"Preempting":0,"Backfill":0,"Drained":0}
 		host_set = set()
+		name_set = set()
 		# type 2. need to verify if all items have the same attribute
 		resource = set()
 		site = set()
@@ -166,7 +170,6 @@ class JobFactory:
 			activity_dict[item.activity] += 1
 			state_dict[item.state] += 1
 			host_set.add(extract_host(item.name))
-			
 			# add one more attribute name_set, because two different daemons could have same host name but different name and daemon_start.
 			# for example, JobId: 1319029, DaemonStart: 1494503417, Name: glidein_1234567890@host1.sandhills.edu disapears at the first half minute of the minute of 100;
 			#              JobId: 1319029, DaemonStart: 1494567848, Name: glidein_0987654321@host1.sandhills.edu reappears at the second half minute of the minute of 100;
@@ -263,7 +266,7 @@ class JobFactory:
 
 #		activity = max(activity_dict.iteritems(), key=operator.itemgetter(1))[0]
 #		state =  max(state_dict.iteritems(), key=operator.itemgetter(1))[0]
-		job = Job(desktop_time,activity_dict,time_current,host_set,state_dict,site,resource,entry,daemon_start,to_retire,to_die,job_id)
+		job = Job(desktop_time,activity_dict,time_current,host_set,name_set,state_dict,site,resource,entry,daemon_start,to_retire,to_die,job_id)
 		self.job_cnt += 1
 		return job
 
