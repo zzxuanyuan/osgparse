@@ -166,6 +166,13 @@ class JobFactory:
 			activity_dict[item.activity] += 1
 			state_dict[item.state] += 1
 			host_set.add(extract_host(item.name))
+			
+			# add one more attribute name_set, because two different daemons could have same host name but different name and daemon_start.
+			# for example, JobId: 1319029, DaemonStart: 1494503417, Name: glidein_1234567890@host1.sandhills.edu disapears at the first half minute of the minute of 100;
+			#              JobId: 1319029, DaemonStart: 1494567848, Name: glidein_0987654321@host1.sandhills.edu reappears at the second half minute of the minute of 100;
+			# but due to snapshot lag period we can't detect the preemption unless to verify the name_set.
+			# host_set for this example should be set([host1.sandhills,edu]), but name_set should be set([glidein_1234567890@host1.sandhills.edu,glidein_0987654321@host1.sandhills.edu])
+			name_set.add(item.name)
 
 			# process type 2
 			if job_id == None:
