@@ -223,12 +223,12 @@ class LifecycleFormatter:
 			else:
 				self.formatted_lifecycle.label = last_activity+"Kill"
 		elif self.lifecycle.job_id in self.job_freq_history_dict:
-			if self.job_time_history_dict[self.lifecycle.job_id] != self.lifecycle.start_time:
+			if self.job_time_history_dict[self.lifecycle.job_id].intersection(self.lifecycle.daemon_start_set):
+				self.formatted_lifecycle.label = "NetworkIssue"
+			else:
 				self.job_freq_history_dict[self.lifecycle.job_id] += 1
 				self.formatted_lifecycle.preempted_freq = self.job_freq_history_dict[self.lifecycle.job_id]
 				self.formatted_lifecycle.label = "Preempted"
-			else:
-				self.formatted_lifecycle.label = "NetworkIssue"
 		elif max_dict(self.lifecycle.activity_dict) is "Idle":
 			if last_activity == "Idle":
 				self.formatted_lifecycle.label = "CleanUp"

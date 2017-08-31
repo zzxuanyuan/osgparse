@@ -26,13 +26,14 @@ def extract_host(name):
 
 class Job:
 
-	def __init__(self,desktop_time,activity_dict,time_current,host_set,name_set,state_dict,site,resource,entry,daemon_start,to_retire,to_die,job_id):
+	def __init__(self,desktop_time,activity_dict,time_current,host_set,name_set,daemon_start_set,state_dict,site,resource,entry,daemon_start,to_retire,to_die,job_id):
 		self.desktop_time = desktop_time
 		self.activity_dict = activity_dict
 		self.state_dict = state_dict
 		self.time_current = time_current
 		self.host_set = host_set
 		self.name_set = name_set
+		self.daemon_start_set = daemon_start_set
 		self.site = site
 		self.resource = resource
 		self.entry = entry
@@ -48,6 +49,7 @@ class Job:
 		print "time_current : ",self.time_current
 		print "host_set : ",self.host_set
 		print "name_set : ",self.name_set
+		print "daemon_start_set : ",self.daemon_start_set
 		print "site : ",self.site
 		print "resource : ",self.resource
 		print "entry : ",self.entry
@@ -63,6 +65,7 @@ class Job:
 		print "time_current : ",self.time_current
 		print "host_set : ",sorted(self.host_set)
 		print "name_set : ",sorted(self.name_set)
+		print "daemon_start_set : ",sorted(self.daemon_start_set)
 		print "site : ",sorted(self.site)
 		print "resource : ",sorted(self.resource)
 		print "entry : ",sorted(self.entry)
@@ -154,6 +157,7 @@ class JobFactory:
 		state_dict = {"Owner":0,"Unclaimed":0,"Matched":0,"Claimed":0,"Preempting":0,"Backfill":0,"Drained":0}
 		host_set = set()
 		name_set = set()
+		daemon_start_set = set()
 		# type 2. need to verify if all items have the same attribute
 		resource = set()
 		site = set()
@@ -176,6 +180,7 @@ class JobFactory:
 			# but due to snapshot lag period we can't detect the preemption unless to verify the name_set.
 			# host_set for this example should be set([host1.sandhills,edu]), but name_set should be set([glidein_1234567890@host1.sandhills.edu,glidein_0987654321@host1.sandhills.edu])
 			name_set.add(item.name)
+			daemon_start_set.add(item.daemon_start)
 
 			# process type 2
 			if job_id == None:
@@ -266,7 +271,7 @@ class JobFactory:
 
 #		activity = max(activity_dict.iteritems(), key=operator.itemgetter(1))[0]
 #		state =  max(state_dict.iteritems(), key=operator.itemgetter(1))[0]
-		job = Job(desktop_time,activity_dict,time_current,host_set,name_set,state_dict,site,resource,entry,daemon_start,to_retire,to_die,job_id)
+		job = Job(desktop_time,activity_dict,time_current,host_set,name_set,daemon_start_set,state_dict,site,resource,entry,daemon_start,to_retire,to_die,job_id)
 		self.job_cnt += 1
 		return job
 

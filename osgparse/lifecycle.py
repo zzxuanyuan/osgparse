@@ -38,6 +38,7 @@ class JobLifecycle:
 		self.desktop_end = None
 		self.host_set = job.host_set
 		self.name_set = job.name_set
+		self.daemon_start_set = job.daemon_start_set
 		self.site = job.site
 		self.resource = job.resource
 		self.entry = job.entry
@@ -63,7 +64,7 @@ class JobLifecycle:
 		self.to_retire = to_retire
 		self.to_die = to_die
 
-	def stay(self, cur_time, activity_dict, state_dict, host_set, name_set):
+	def stay(self, cur_time, activity_dict, state_dict, host_set, name_set, daemon_start_set):
 		self.start_time = min(self.start_time, cur_time)
 		# We accumulate self.activity_dict and self.state_dict by their corresponding attributes in snapshot's acitivity_dict and state_dict
 		for key in activity_dict:
@@ -72,6 +73,7 @@ class JobLifecycle:
 			self.state_dict[key] += state_dict[key]
 		self.host_set = self.host_set.union(host_set)
 		self.name_set = self.name_set.union(name_set)
+		self.daemon_start_set = self.daemon_start_set.union(daemon_start_set)
 		if osgparse.constants.DEBUG > 0:
 			tup = (cur_time, activity_dict, state_dict)
 			self.pair_activity_state_list.append(tup)
@@ -98,6 +100,7 @@ class JobLifecycle:
 		print "desktop_end : ", self.desktop_end
 		print "host_set : ", self.host_set
 		print "name_set : ", self.name_set
+		print "daemon_start_set : ", self.daemon_start_set
 		print "site : ", self.site
 		print "resource : ", self.resource
 		print "entry : ", self.entry
@@ -161,8 +164,8 @@ class LifecycleGenerator:
 				inter_lifecycle = self.pre_lifecycle_dict[inter]
 				inter_job = self.cur_snapshot.job_dict[inter]
 				pre_job = self.pre_snapshot.job_dict[inter]
-				if inter_job.daemon_start == inter_lifecycle.start_time or inter_job.name_set.intersection(pre_job.name_set):
-					inter_lifecycle.stay(inter_job.time_current,inter_job.activity_dict,inter_job.state_dict,inter_job.host_set,inter_job.name_set)
+				if inter_job.daemon_start_set.intersection(inter_lifecycle.daemon_start_set) or inter_job.name_set.intersection(pre_job.name_set):
+					inter_lifecycle.stay(inter_job.time_current,inter_job.activity_dict,inter_job.state_dict,inter_job.host_set,inter_job.name_set,inter_job.daemon_start_set)
 					self.cur_lifecycle_dict[inter] = inter_lifecycle
 				else:
 					finish_job_set.add(inter)

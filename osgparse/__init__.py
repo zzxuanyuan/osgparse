@@ -46,7 +46,7 @@ def format(**opts):
 				finished_job_dict = generator.generate(snapshot)
 				for l in finished_job_dict:
 					formatted_job = formatter.format_lifecycle(finished_job_dict[l],snapshot.job_num,snapshot.job_num_resource_dict)
-					osgparse.constants.JOB_TIME_HISTORY_DICT[l] = finished_job_dict[l].start_time
+					osgparse.constants.JOB_TIME_HISTORY_DICT[l] = finished_job_dict[l].daemon_start_set
 					formatted_job.formatted_dump(file_to_write)
 	file_to_write.close()
 
