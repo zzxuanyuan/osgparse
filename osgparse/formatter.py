@@ -242,7 +242,7 @@ class LifecycleFormatter:
 			else:
 				self.formatted_lifecycle.label = last_activity+"NeedIdentify"
 		elif max_dict(self.lifecycle.activity_dict) is "Benchmarking":
-			self.formatted_lifecycle.label = "Benchmarking"
+			self.formatted_lifecycle.label = last_activity+"Benchmarking"
 		else:
 			self.formatted_lifecycle.label = last_activity+"Unknown"
 		if self.lifecycle.job_id not in self.job_freq_history_dict:

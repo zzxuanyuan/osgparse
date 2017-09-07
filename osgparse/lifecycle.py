@@ -164,7 +164,7 @@ class LifecycleGenerator:
 				inter_lifecycle = self.pre_lifecycle_dict[inter]
 				inter_job = self.cur_snapshot.job_dict[inter]
 				pre_job = self.pre_snapshot.job_dict[inter]
-				if inter_job.daemon_start_set.intersection(inter_lifecycle.daemon_start_set) or inter_job.name_set.intersection(pre_job.name_set):
+				if inter_job.daemon_start_set.intersection(inter_lifecycle.daemon_start_set) and inter_job.name_set.intersection(pre_job.name_set):
 					inter_lifecycle.stay(inter_job.time_current,inter_job.activity_dict,inter_job.state_dict,inter_job.host_set,inter_job.name_set,inter_job.daemon_start_set)
 					self.cur_lifecycle_dict[inter] = inter_lifecycle
 				else:
