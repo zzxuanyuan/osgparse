@@ -10,7 +10,15 @@ import osgparse.parser
 import osgparse.lifecycle
 import osgparse.formatter
 import osgparse.recorder
+import osgparse.plotter
+import osgparse.slidingwindow
 import osgparse.constants
+import osgparse.ml_engine.ml_engine
+import osgparse.regression_engine.regression_engine
+import osgparse.utils
+import osgparse.filter_engine
+
+import pandas as pd
 
 __version__ = '0.1.1'
 
@@ -68,3 +76,69 @@ def timeseries(**opts):
 				snapshot = parser.read_line(line)
 				recorder.record(snapshot)
 	recorder.dump(opts['outfile'])
+
+def plot(**opts):
+	snapshot_date_list = []
+	with open(opts['filename'], 'r') as snapshot_files:
+		for snapshot_file in snapshot_files:
+			snapshot_file = snapshot_file.strip("\n")
+			measure_date = extract_date(snapshot_file)
+			snapshot_date_list.append(measure_date)
+	osgparse.constants.init(snapshot_date_list)
+	plotter = osgparse.plotter.Plotter(osgparse.constants.MEASURE_DATE_DICT,opts['jobinstances'],opts['timeseries'])
+	if opts['plottype'] == 'timeseries':
+		plotter.plot_time_series(opts['resource'], opts['label'])
+	elif opts['plottype'] == 'duration':
+		plotter.plot_duration(opts['resource'], opts['label'])
+	elif opts['plottype'] == 'timepoint':
+		plotter.plot_time_point(opts['resource'], opts['timepoint'])
+
+def classify(**opts):
+	snapshot_date_list = []
+	window = osgparse.slidingwindow.SlidingWindow(opts['jobinstances'])
+	res = 0
+	labels = window.get_values('Class')
+	names = window.get_values('ResourceNames')
+	mle = osgparse.ml_engine.ml_engine.MLEngine(labels, names, 'DecisionTree', 'ResourceNames')
+	data_tuple = (pd.DataFrame(), pd.DataFrame())
+	while(1):
+		data_tuple = window.slide()
+		if data_tuple == "EOF":
+			break
+		data_train = data_tuple[0]
+		data_test = data_tuple[1]
+		mle.predict(data_train, data_test)
+#		print "in __init__"
+#		print mle.get_confusion_matrix_dict('MWT2')
+	confusion_matrix = mle.get_confusion_matrix()
+	print confusion_matrix
+
+def predict(**opts):
+	snapshot_date_list = []
+	window = osgparse.slidingwindow.SlidingWindow(opts['jobinstances'])
+	res = 0
+	names = window.get_values('ResourceNames')
+	regressor = osgparse.regression_engine.regression_engine.RegressionEngine(names, opts['regressionmodel'], 'ResourceNames')
+	data_tuple = (pd.DataFrame(), pd.DataFrame())
+	while(1):
+		data_tuple = window.slide()
+		if data_tuple == "EOF":
+			break
+		data_train = data_tuple[0]
+		data_test = data_tuple[1]
+		regressor.predict(data_train, data_test)
+	fault_tolerance_rate = regressor.get_fault_tolerance_rate()
+	regressor.dump_fault_tolerance_rate()
+
+def filter(**opts):
+	ftr = osgparse.filter_engine.FilterEngine()
+	if opts['exclude']:
+		print "exclusive exists"
+		ftr.filter_exclusive(opts['jobinstances'],opts['outfile'],opts['exclude'])
+	elif opts['include']:
+		print "inclusive exists"
+		ftr.filter_inclusive(opts['jobinstances'],opts['outfile'],opts['include'])
+	print "nothing exists"
+
+def changelabel(**opts):
+	osgparse.utils.changelabel(opts['jobinstances'],opts['outfile'],5)
