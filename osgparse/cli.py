@@ -33,6 +33,9 @@ def create_parser():
 	parser.add_argument('-in', '--include', help='filter classes that are inclusive')
 	parser.add_argument('-rm', '--regressionmodel', help='regression model')
 	parser.add_argument('-cm', '--classificationmodel', help='classification model')
+	parser.add_argument('-attr', '--attr', help='attribute of plotting MaxRetireTime or MaxKillTime')
+	parser.add_argument('-attr1', '--attr1', help='attribute 1 of plotting time difference between attr1 and attr2')
+	parser.add_argument('-attr2', '--attr2', help='attribute 2 of plotting time difference between attr1 and attr2')
 	parser.add_argument('-v', '--version', action='version',version=osgparse.__version__)
 
 	return parser
@@ -61,6 +64,8 @@ def main(args=None):
 		osgparse.predict(**opts)
 	elif args.command == "changelabel":
 		osgparse.changelabel(**opts)
+	elif args.command == "increment0preemption":
+		osgparse.increment0preemption(**opts)
 	elif args.command == "filter":
 		osgparse.filter(**opts)
 	return 0

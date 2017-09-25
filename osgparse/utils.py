@@ -14,6 +14,18 @@ kill_classes = set(['RetiringKill', 'BusyKill', 'IdleKill', 'Killed', 'Benchmark
 network_classes = set(['NetworkIssue'])
 recycle_classes = set(['CleanUp', 'Succeeded', 'Benchmarking', 'IdleUnknown', 'NoDieOrRetireSucceeded'])
 
+def increment0preemption(job_instances_file, output_file):
+	with open(job_instances_file, 'r') as fr:
+		with open(output_file, 'w') as fw:
+			reader = csv.DictReader(fr)
+			header = reader.fieldnames
+			writer = csv.DictWriter(fw, fieldnames=header)
+			writer.writeheader()
+			for row in reader:
+				if row['Class'] == 'Preemption' and row['PreemptionFrequency'] == '0':
+					row['PreemptionFrequency'] = '1'
+				writer.writerow(row)
+
 def changelabel(job_instances_file, output_file, number_of_labels=2):
 	if number_of_labels == 2:
 		_to2labels(job_instances_file, output_file)

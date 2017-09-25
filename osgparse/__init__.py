@@ -17,7 +17,7 @@ import osgparse.ml_engine.ml_engine
 import osgparse.regression_engine.regression_engine
 import osgparse.utils
 import osgparse.filter_engine
-
+import numpy as np
 import pandas as pd
 
 __version__ = '0.1.1'
@@ -88,10 +88,24 @@ def plot(**opts):
 	plotter = osgparse.plotter.Plotter(osgparse.constants.MEASURE_DATE_DICT,opts['jobinstances'],opts['timeseries'])
 	if opts['plottype'] == 'timeseries':
 		plotter.plot_time_series(opts['resource'], opts['label'])
-	elif opts['plottype'] == 'duration':
-		plotter.plot_duration(opts['resource'], opts['label'])
+	elif opts['plottype'] == 'jobdistance':
+		plotter.plot_job_distance(opts['resource'], opts['label'])
 	elif opts['plottype'] == 'timepoint':
 		plotter.plot_time_point(opts['resource'], opts['timepoint'])
+	elif opts['plottype'] == 'desktoptime':
+		plotter.plot_desktop_start_end_correlation(opts['resource'], opts['label'])
+	elif opts['plottype'] == 'timediff':
+		plotter.plot_time_diff(opts['resource'], opts['label'], opts['attr1'], opts['attr2'])
+	elif opts['plottype'] == 'maxtime':
+		plotter.plot_max_retire_or_kill_time(opts['resource'], opts['label'], opts['attr'])
+	elif opts['plottype'] == 'faulttolerance':
+		plotter.plot_fault_tolerance(opts['resource'], opts['label'])
+	elif opts['plottype'] == 'jobdistribution':
+		plotter.plot_job_distribution(opts['attr'], opts['label'])
+	elif opts['plottype'] == 'preemptiondistribution':
+		plotter.plot_preemption_distribution()
+	elif opts['plottype'] == 'duration':
+		plotter.plot_duration(opts['resource'], opts['label'])
 
 def classify(**opts):
 	snapshot_date_list = []
@@ -115,20 +129,47 @@ def classify(**opts):
 
 def predict(**opts):
 	snapshot_date_list = []
-	window = osgparse.slidingwindow.SlidingWindow(opts['jobinstances'])
+	window = osgparse.slidingwindow.SlidingWindow(opts['jobinstances'], "DesktopEndDateMinute", 20, 1)
 	res = 0
-	names = window.get_values('ResourceNames')
-	regressor = osgparse.regression_engine.regression_engine.RegressionEngine(names, opts['regressionmodel'], 'ResourceNames')
-	data_tuple = (pd.DataFrame(), pd.DataFrame())
+	if opts['resource'] == None:
+		names = window.get_values('ResourceNames')
+	else:
+		name_string = opts['resource']
+		if name_string[0] != '[' and name_string[-1] != ']':
+			names = [name_string]
+		else:
+			names = name_string[1:-1].split(',')
+			for name in names:
+				name = name.strip()
+	names = np.array(names)
+	if opts['label'] == None:
+		labels = None
+	else:
+		label_string = opts['label']
+		if label_string[0] != '[' and label_string[-1] != ']':
+			labels = [label_string]
+		else:
+			labels = label_string[1:-1].split(',')
+			for label in labels:
+				label = label.strip()
+	labels = np.array(labels)
+	regressor = osgparse.regression_engine.regression_engine.RegressionEngine(labels, names, opts['regressionmodel'], 'ResourceNames')
+	data_tuple = (pd.DataFrame(), pd.DataFrame(), None)
 	while(1):
 		data_tuple = window.slide()
 		if data_tuple == "EOF":
 			break
 		data_train = data_tuple[0]
 		data_test = data_tuple[1]
-		regressor.predict(data_train, data_test)
-	fault_tolerance_rate = regressor.get_fault_tolerance_rate()
-	regressor.dump_fault_tolerance_rate()
+		cur_desktop_time = data_tuple[2]
+		regressor.predict(data_train, data_test, cur_desktop_time)
+		print "sample size = ", data_train.size
+		fault_tolerance = regressor.get_fault_tolerance()
+		print "fault_tolerance_rate size = ", len(fault_tolerance)
+		print "cur_desktop_time = ", cur_desktop_time
+		print regressor.get_fault_tolerance()
+	fault_tolerance = regressor.get_fault_tolerance()
+	print fault_tolerance
 
 def filter(**opts):
 	ftr = osgparse.filter_engine.FilterEngine()
@@ -142,3 +183,6 @@ def filter(**opts):
 
 def changelabel(**opts):
 	osgparse.utils.changelabel(opts['jobinstances'],opts['outfile'],5)
+
+def increment0preemption(**opts):
+	osgparse.utils.increment0preemption(opts['jobinstances'],opts['outfile'])
