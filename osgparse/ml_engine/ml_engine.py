@@ -67,6 +67,7 @@ class MLEngine():
 
 #				if name == 'MWT2':
 #				print "later: ",self.confusion_matrix_dict['MWT2']
+		print self.confusion_matrix
 
 	def get_confusion_matrix(self):
 		return self.confusion_matrix

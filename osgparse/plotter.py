@@ -60,7 +60,13 @@ class Plotter:
 			for m in minutes.index:
 				job_num_array[m] = minutes[m]
 			ts = self.time_series[resource]
-			print np.argmax(job_num_array), max(job_num_array)
+			temp = job_num_array
+			temp = np.nan_to_num(job_num_array)
+			print np.argmax(temp), max(temp)
+			print temp.shape
+			print np.sort(temp)[-200:]
+			print temp.argsort()[-200:][::-1]
+#			print job_num_array[120959],job_num_array[41027],job_num_array[41014],job_num_array[41015],job_num_array[41016]
 			ts.plot(color='red')
 			ts_array = ts.values
 			total_running_jobs, = plt.plot(range(self.series_size), ts_array, color='red', label='Total Running Jobs')
@@ -340,17 +346,49 @@ class Plotter:
 		bin_count = np.bincount(distance_array)
 		print bin_count
 		bin_count = bin_count.astype(float)
-		bin_count[bin_count == 0] = np.nan
-		plt.scatter(range(bin_count.size), bin_count)
-		plt.xlim(0, 100)
-#		plt.hist(distance_array.tolist(), bins=range(0,1500,20))
+		bin_count_sum = sum(bin_count)
+		bin_count_prob = bin_count/bin_count_sum
+		cumulative = 0
+		bin_count_cumu = np.array([])
+		for prob in bin_count_prob:
+			prob += cumulative
+			bin_count_cumu = np.append(bin_count_cumu, prob)
+			cumulative = prob
+		bin_count_prob[bin_count_prob == 0] = np.nan
+		bin_count_cumu[bin_count_cumu == 0] = np.nan
+		fig = plt.figure(1)
+		p1 = plt.subplot(1,2,1)
+		plt.scatter(range(bin_count_prob.size), bin_count_prob)
+		plt.xlabel("Preemption Distance (Minutes)")
+		plt.ylabel("Probability Distribution")
+		p2 = plt.subplot(1,2,2)
+		plt.scatter(range(bin_count_cumu.size), bin_count_cumu)
+		plt.xlabel("Preemption Distance (Minutes)")
+		plt.ylabel("Cumulative Probability Distribution")
+		file_name = resource + '_' + label + '_preemptiondistancedist'
+		file_name = '/Users/zhezhang/osgparse/figures/' + file_name
+		fig.savefig(file_name)
+		plt.show()
+		fig = plt.figure(2)
+		p1 = plt.subplot(1,2,1)
+		plt.scatter(range(bin_count_prob.size), bin_count_prob)
+		plt.xlabel("Preemption Distance (Minutes)")
+		plt.ylabel("Probability Distribution")
+		plt.xlim(0, 60)
+		p2 = plt.subplot(1,2,2)
+		plt.scatter(range(bin_count_cumu.size), bin_count_cumu)
+		plt.xlabel("Preemption Distance (Minutes)")
+		plt.ylabel("Cumulative Probability Distribution")
+		plt.xlim(0, 60)
+		file_name = resource + '_' + label + '_preemptiondistancedist_1hour'
+		file_name = '/Users/zhezhang/osgparse/figures/' + file_name
+		fig.savefig(file_name)
 		plt.show()
 #		plt.scatter(range(len(corr)),corr)
 #		plt.scatter(range(job_num_array.shape[0]), job_num_array)
 #		plt.show()
 
 	def plot_time_point(self, resource, timepoint):
-		plt.figure()
 		timepoint = int(timepoint)
 #		survivors = self.job_instances[(self.job_instances['ResourceNames']==resource) & (self.job_instances['NumberOfHost'] == 1) & (self.job_instances['DesktopStartDateMinute'] <= timepoint) & (self.job_instances['DesktopEndDateMinute'] > timepoint)]
 #		victims = self.job_instances[(self.job_instances['ResourceNames']==resource) & (self.job_instances['NumberOfHost'] == 1) & (self.job_instances['DesktopEndDateMinute'] == timepoint)]
@@ -379,7 +417,7 @@ class Plotter:
 			time_start = timepoint-5000
 		time_end = timepoint + 5000
 		plt.xlim(time_start, time_end)
-#		plt.ylim(survivor_array.shape[1], survivor_array.shape[1]+victim_array.shape[1])
+#		plt.ylim(survivor_array.shape[1]-100, survivor_array.shape[1]+victim_array.shape[1])
 		plt.show()
 
 	def plot_desktop_start_end_correlation(self, resource, label):
