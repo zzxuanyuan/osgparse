@@ -1,5 +1,5 @@
 #!/usr/bin/python
-
+import math
 from datetime import datetime
 import numpy as np
 import pandas as pd
@@ -430,6 +430,268 @@ class Plotter:
 		plt.xlim(40000,45000)
 		plt.show()
 
+	def plot_time_max_retire_kill(self, resource):
+		if resource == 'All':
+			print "label is none and resource is none"
+			df = self.job_instances
+			self._plot_time_max_retire_kill(resource, df)
+		elif resource == 'Skip':
+			print "without MWT2"
+			df = self.job_instances[self.job_instances['ResourceNames']!='MWT2']
+			self._plot_time_max_retire_kill(resource, df)
+		elif resource == None:
+			resources = self.job_instances['ResourceNames'].value_counts().index
+			for resource in resources:
+				df = self.job_instances[self.job_instances['ResourceNames']==resource]
+				self._plot_time_max_retire_kill(resource, df)
+		else:
+			df = self.job_instances[self.job_instances['ResourceNames']==resource]
+			self._plot_time_max_retire_kill(resource, df)
+	
+	def _plot_time_max_retire_kill(self, resource, df):
+		print "in _plot_time_max_retire_kill"
+		attr_retire = 'MaxRetireTime'
+		attr_kill = 'MaxKillTime'
+		df_retire = df[df['Class']=='Retire']
+		max_df_retire = df_retire['MaxRetireTime'].astype(int)
+		max_df_retire = max_df_retire[max_df_retire >= 0]
+		max_df_retire_array = (max_df_retire.values)/60
+		print max_df_retire_array.shape
+		bin_count_retire = np.bincount(max_df_retire_array)
+		bin_count_retire = bin_count_retire.astype(float)
+		bin_count_retire_prob = bin_count_retire/sum(bin_count_retire)
+		cumulative = 0
+		bin_count_retire_cumu = np.array([])
+		for prob in bin_count_retire_prob:
+			prob += cumulative
+			bin_count_retire_cumu = np.append(bin_count_retire_cumu, prob)
+			cumulative = prob
+		bin_count_retire_prob[bin_count_retire_prob == 0] = np.nan
+		bin_count_retire_cumu[bin_count_retire_cumu == 0] = np.nan
+
+		df_kill = df[df['Class']=='Kill']
+		max_df_kill = df_kill['MaxKillTime'].astype(int)
+		max_df_kill = max_df_kill[max_df_kill >= 0]
+		max_df_kill_array = (max_df_kill.values)/60
+		print max_df_kill_array.shape
+		bin_count_kill = np.bincount(max_df_kill_array)
+		bin_count_kill = bin_count_kill.astype(float)
+		bin_count_kill_prob = bin_count_kill/sum(bin_count_kill)
+		cumulative = 0
+		bin_count_kill_cumu = np.array([])
+		for prob in bin_count_kill_prob:
+			prob += cumulative
+			bin_count_kill_cumu = np.append(bin_count_kill_cumu, prob)
+			cumulative = prob
+		bin_count_kill_prob[bin_count_kill_prob == 0] = np.nan
+		bin_count_kill_cumu[bin_count_kill_cumu == 0] = np.nan
+
+		fig1 = plt.figure(1)
+		plt.scatter(range(bin_count_retire_prob.size), bin_count_retire_prob, label='Retire')
+		plt.scatter(range(bin_count_kill_prob.size), bin_count_kill_prob, label='Kill')
+#		ax = plt.gca()
+#		ax.set_xticks([0,10,20,30,40,50,60,70,80,90,100])
+#		ax.set_xticklabels(['0','10%','20%','30%','40%','50%','60%','70%','80%','90%','100%'],rotation=40,fontsize=12)
+#		ax.set_yticks([0,0.02,0.04,0.06,0.08,0.10,0.12,0.14,0.16,0.18,0.20,0.22,0.24,0.26,0.28,0.30])
+#		ax.set_yticklabels(['0','0.02','0.04','0.06','0.08','0.10','0.12','0.14','0.16','0.18','0.20','0.22','0.24','0.26','0.28','0.30'],fontsize=12)
+		plt.xlabel('Max Retire and Kill Time (Minutes)', fontsize=14)
+		plt.ylabel('Probability', fontsize=14)
+		plt.legend(loc='upper right',prop={'size':12})
+		plt.xlim(xmin=0)
+		plt.ylim(ymin=0)
+		plt.grid()
+		plt.tight_layout()
+		if resource == None:
+			file_name = "timemax_pdf" + ".png"
+		else:
+			file_name = "timemax_pdf_" + resource + ".png"
+		file_name = '/Users/zhezhang/osgparse/figures/' + file_name
+		fig1.savefig(file_name)
+		plt.show()
+		
+		fig2 = plt.figure(2)
+		plt.scatter(range(bin_count_retire_cumu.size), bin_count_retire_cumu, label='Retire')
+		plt.scatter(range(bin_count_kill_cumu.size), bin_count_kill_cumu, label='Kill')
+#		ax = plt.gca()
+#		ax.set_xticks([0,10,20,30,40,50,60,70,80,90,100])
+#		ax.set_xticklabels(['0','10%','20%','30%','40%','50%','60%','70%','80%','90%','100%'],rotation=40,fontsize=12)
+#		ax.set_yticks([0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0])
+#		ax.set_yticklabels(['0','0.1','0.2','0.3','0.4','0.5','0.6','0.7','0.8','0.9','1.0'])
+		plt.xlabel('Max Retire and Kill Time (Minutes)', fontsize=14)
+		plt.ylabel('Cumulative Probability', fontsize=14)
+		plt.legend(loc='lower right',prop={'size':12})
+		plt.xlim(xmin=0)
+		plt.ylim(ymin=0)
+		plt.grid()
+		plt.tight_layout()
+		if resource == None:
+			file_name = "timemax_cdf" + ".png"
+		else:
+			file_name = "timemax_cdf_" + resource + ".png"
+		file_name = '/Users/zhezhang/osgparse/figures/' + file_name
+		fig2.savefig(file_name)
+		plt.show()
+	
+	def plot_time_diff_retire_kill(self, resource):
+		if resource == 'All':
+			print "label is none and resource is none"
+			df = self.job_instances
+			self._plot_time_diff_retire_kill(resource, df)
+		elif resource == 'Skip':
+			print "without MWT2"
+			df = self.job_instances[self.job_instances['ResourceNames']!='MWT2']
+			self._plot_time_diff_retire_kill(resource, df)
+		elif resource == None:
+			resources = self.job_instances['ResourceNames'].value_counts().index
+			for resource in resources:
+				df = self.job_instances[self.job_instances['ResourceNames']==resource]
+				self._plot_time_diff_retire_kill(resource, df)
+		else:
+			df = self.job_instances[self.job_instances['ResourceNames']==resource]
+			self._plot_time_diff_retire_kill(resource, df)
+	
+	def _plot_time_diff_retire_kill(self, resource, df):
+		attr_duration = 'Duration'
+		attr_retire = 'MaxRetireTime'
+		attr_kill = 'MaxKillTime'
+		df_retire = df[df['Class']=='Retire']
+		diff_df_retire = df_retire.loc[:,['Duration','MaxRetireTime']].astype(int)
+		diff_df_retire = diff_df_retire[(diff_df_retire[attr_duration] >= 0) & (diff_df_retire[attr_retire] >= 0)]
+		diff_retire_abs_array = abs(diff_df_retire[attr_duration].values - diff_df_retire[attr_retire].values)
+		df_retire_array = diff_df_retire[attr_retire].values
+		print df_retire_array.shape, diff_retire_abs_array.shape
+		diff_retire = np.array([])
+		for i in range(len(df_retire_array)):
+			diff_retire = np.append(diff_retire, diff_retire_abs_array[i]*1.0/df_retire_array[i]*100)
+		diff_retire = diff_retire.astype(int)
+		print diff_retire
+		bin_count_retire = np.bincount(diff_retire)
+		bin_count_retire = bin_count_retire.astype(float)
+		bin_count_retire_prob = bin_count_retire/sum(bin_count_retire)
+		cumulative = 0
+		bin_count_retire_cumu = np.array([])
+		for prob in bin_count_retire_prob:
+			prob += cumulative
+			bin_count_retire_cumu = np.append(bin_count_retire_cumu, prob)
+			cumulative = prob
+		bin_count_retire_prob[bin_count_retire_prob == 0] = np.nan
+		bin_count_retire_cumu[bin_count_retire_cumu == 0] = np.nan
+
+		df_kill = df[df['Class']=='Kill']
+		diff_df_kill = df_kill.loc[:,['Duration','MaxKillTime']].astype(int)
+		diff_df_kill = diff_df_kill[(diff_df_kill[attr_duration] >= 0) & (diff_df_kill[attr_kill] >= 0)]
+		diff_kill_abs_array = abs(diff_df_kill[attr_duration].values - diff_df_kill[attr_kill].values)
+		df_kill_array = diff_df_kill[attr_kill].values
+		print df_kill_array.shape, diff_kill_abs_array.shape
+		diff_kill = np.array([])
+		for i in range(len(df_kill_array)):
+			diff_kill = np.append(diff_kill, diff_kill_abs_array[i]*1.0/df_kill_array[i]*100)
+		diff_kill = diff_kill.astype(int)
+		print diff_kill
+		bin_count_kill = np.bincount(diff_kill)
+		bin_count_kill = bin_count_kill.astype(float)
+		bin_count_kill_prob = bin_count_kill/sum(bin_count_kill)
+		cumulative = 0
+		bin_count_kill_cumu = np.array([])
+		for prob in bin_count_kill_prob:
+			prob += cumulative
+			bin_count_kill_cumu = np.append(bin_count_kill_cumu, prob)
+			cumulative = prob
+		bin_count_kill_prob[bin_count_kill_prob == 0] = np.nan
+		bin_count_kill_cumu[bin_count_kill_cumu == 0] = np.nan
+
+		fig1 = plt.figure(1)
+		plt.scatter(range(bin_count_retire_prob.size), bin_count_retire_prob, label='Retire')
+		plt.scatter(range(bin_count_kill_prob.size), bin_count_kill_prob, label='Kill')
+#		ax = plt.gca()
+#		ax.set_xticks([0,10,20,30,40,50,60,70,80,90,100])
+#		ax.set_xticklabels(['0','10%','20%','30%','40%','50%','60%','70%','80%','90%','100%'],rotation=40,fontsize=12)
+#		ax.set_yticks([0,0.02,0.04,0.06,0.08,0.10,0.12,0.14,0.16,0.18,0.20,0.22,0.24,0.26,0.28,0.30])
+#		ax.set_yticklabels(['0','0.02','0.04','0.06','0.08','0.10','0.12','0.14','0.16','0.18','0.20','0.22','0.24','0.26','0.28','0.30'],fontsize=12)
+		plt.xlabel('Runtime Prediction Fault Percentage (%)', fontsize=14)
+		plt.ylabel('Probability', fontsize=14)
+		plt.legend(loc='upper right',prop={'size':12})
+		plt.xlim(xmin=0)
+		plt.ylim(ymin=0)
+		plt.grid()
+		plt.tight_layout()
+		if resource == None:
+			file_name = "timediff_pdf" + ".png"
+		else:
+			file_name = "timediff_pdf_" + resource + ".png"
+		file_name = '/Users/zhezhang/osgparse/figures/' + file_name
+		fig1.savefig(file_name)
+		plt.show()
+
+		fig2 = plt.figure(2)
+		plt.scatter(range(bin_count_retire_prob.size), bin_count_retire_prob, label='Retire')
+		plt.scatter(range(bin_count_kill_prob.size), bin_count_kill_prob, label='Kill')
+#		ax = plt.gca()
+#		ax.set_xticks([0,10,20,30,40,50,60,70,80,90,100])
+#		ax.set_xticklabels(['0','10%','20%','30%','40%','50%','60%','70%','80%','90%','100%'],rotation=40,fontsize=12)
+#		ax.set_yticks([0,0.02,0.04,0.06,0.08,0.10,0.12,0.14,0.16,0.18,0.20,0.22,0.24,0.26,0.28,0.30])
+#		ax.set_yticklabels(['0','0.02','0.04','0.06','0.08','0.10','0.12','0.14','0.16','0.18','0.20','0.22','0.24','0.26','0.28','0.30'],fontsize=12)
+		plt.xlabel('Runtime Prediction Fault Percentage (%)', fontsize=14)
+		plt.ylabel('Probability', fontsize=14)
+		plt.legend(loc='upper right',prop={'size':12})
+		plt.xlim(xmin=0, xmax=100)
+		plt.ylim(ymin=0)
+		plt.grid()
+		plt.tight_layout()
+		if resource == None:
+			file_name = "timediff_pdf_zoomin" + ".png"
+		else:
+			file_name = "timediff_pdf_zoomin_" + resource + ".png"
+		file_name = '/Users/zhezhang/osgparse/figures/' + file_name
+		fig2.savefig(file_name)
+		plt.show()
+			
+		fig3 = plt.figure(3)
+		plt.scatter(range(bin_count_retire_cumu.size), bin_count_retire_cumu, label='Retire')
+		plt.scatter(range(bin_count_kill_cumu.size), bin_count_kill_cumu, label='Kill')
+#		ax = plt.gca()
+#		ax.set_xticks([0,10,20,30,40,50,60,70,80,90,100])
+#		ax.set_xticklabels(['0','10%','20%','30%','40%','50%','60%','70%','80%','90%','100%'],rotation=40,fontsize=12)
+#		ax.set_yticks([0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0])
+#		ax.set_yticklabels(['0','0.1','0.2','0.3','0.4','0.5','0.6','0.7','0.8','0.9','1.0'])
+		plt.xlabel('Runtime Prediction Fault Percentage (%)', fontsize=14)
+		plt.ylabel('Cumulative Probability', fontsize=14)
+		plt.legend(loc='lower right',prop={'size':12})
+		plt.xlim(xmin=0)
+		plt.ylim(ymin=0)
+		plt.grid()
+		plt.tight_layout()
+		if resource == None:
+			file_name = "timediff_cdf" + ".png"
+		else:
+			file_name = "timediff_cdf_" + resource + ".png"
+		file_name = '/Users/zhezhang/osgparse/figures/' + file_name
+		fig3.savefig(file_name)
+		plt.show()
+
+		fig4 = plt.figure(4)
+		plt.scatter(range(bin_count_retire_cumu.size), bin_count_retire_cumu, label='Retire')
+		plt.scatter(range(bin_count_kill_cumu.size), bin_count_kill_cumu, label='Kill')
+#		ax = plt.gca()
+#		ax.set_xticks([0,10,20,30,40,50,60,70,80,90,100])
+#		ax.set_xticklabels(['0','10%','20%','30%','40%','50%','60%','70%','80%','90%','100%'],rotation=40,fontsize=12)
+#		ax.set_yticks([0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0])
+#		ax.set_yticklabels(['0','0.1','0.2','0.3','0.4','0.5','0.6','0.7','0.8','0.9','1.0'])
+		plt.xlabel('Runtime Prediction Fault Percentage (%)', fontsize=14)
+		plt.ylabel('Cumulative Probability', fontsize=14)
+		plt.legend(loc='lower right',prop={'size':12})
+		plt.xlim(xmin=0, xmax=100)
+		plt.ylim(ymin=0)
+		plt.grid()
+		plt.tight_layout()
+		if resource == None:
+			file_name = "timediff_cdf_zoomin" + ".png"
+		else:
+			file_name = "timediff_cdf_zoomin_" + resource + ".png"
+		file_name = '/Users/zhezhang/osgparse/figures/' + file_name
+		fig4.savefig(file_name)
+		plt.show()
+	
 	def plot_time_diff(self, resource, label, attr1, attr2):
 		plt.figure()
 		if label == None and resource == None:

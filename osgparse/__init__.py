@@ -96,6 +96,10 @@ def plot(**opts):
 		plotter.plot_desktop_start_end_correlation(opts['resource'], opts['label'])
 	elif opts['plottype'] == 'timediff':
 		plotter.plot_time_diff(opts['resource'], opts['label'], opts['attr1'], opts['attr2'])
+	elif opts['plottype'] == 'timediffretirekill':
+		plotter.plot_time_diff_retire_kill(opts['resource'])
+	elif opts['plottype'] == 'timemaxretirekill':
+		plotter.plot_time_max_retire_kill(opts['resource'])
 	elif opts['plottype'] == 'maxtime':
 		plotter.plot_max_retire_or_kill_time(opts['resource'], opts['label'], opts['attr'])
 	elif opts['plottype'] == 'faulttolerance':
@@ -112,8 +116,11 @@ def classify(**opts):
 	window = osgparse.slidingwindow.SlidingWindow(opts['jobinstances'])
 	res = 0
 	labels = window.get_values('Class')
-	names = window.get_values('ResourceNames')
-	mle = osgparse.ml_engine.ml_engine.MLEngine(labels, names, 'DecisionTree', 'ResourceNames')
+	if opts['resource'] == None:
+		names = window.get_values('ResourceNames')
+	else:
+		names = [opts['resource']]
+	mle = osgparse.ml_engine.ml_engine.MLEngine(labels, names, opts['classificationmodel'], 'ResourceNames')
 	data_tuple = (pd.DataFrame(), pd.DataFrame())
 	while(1):
 		data_tuple = window.slide()
@@ -123,9 +130,13 @@ def classify(**opts):
 		data_test = data_tuple[1]
 		mle.predict(data_train, data_test)
 #		print "in __init__"
-#		print mle.get_confusion_matrix_dict('MWT2')
+#		print "MWT2: ", mle.get_confusion_matrix_dict('MWT2')
 	confusion_matrix = mle.get_confusion_matrix()
+	print "printing final confusion matrix: "
 	print confusion_matrix
+	for name in names:
+		print "printing ", name, " confusion matrix: "
+		print mle.get_confusion_matrix_dict(name)
 
 def predict(**opts):
 	snapshot_date_list = []
@@ -170,6 +181,22 @@ def predict(**opts):
 		print regressor.get_fault_tolerance()
 	fault_tolerance = regressor.get_fault_tolerance()
 	print fault_tolerance
+
+def crossval(**opts):
+	df = pd.read_csv(opts['jobinstances'], header=0)
+	if opts['label'] == None:
+		labels = df['Class'].value_counts().index
+	else:
+		labels = opts['label']
+	if opts['resource'] == None:
+		names = df['ResourceNames'].value_counts().index
+	else:
+		names = [opts['resource']]
+	mle = osgparse.ml_engine.ml_engine.MLEngine(labels, names, opts['classificationmodel'], 'ResourceNames')
+	score = mle.crossval(df, 10, 4)
+	confusion_matrix = mle.crossmatrix(df, 10, 4)
+	print score
+	print confusion_matrix
 
 def filter(**opts):
 	ftr = osgparse.filter_engine.FilterEngine()

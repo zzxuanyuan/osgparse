@@ -62,6 +62,8 @@ def main(args=None):
 		osgparse.classify(**opts)
 	elif args.command == "predict":
 		osgparse.predict(**opts)
+	elif args.command == "crossval":
+		osgparse.crossval(**opts)
 	elif args.command == "changelabel":
 		osgparse.changelabel(**opts)
 	elif args.command == "increment0preemption":
