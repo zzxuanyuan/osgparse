@@ -53,7 +53,7 @@ class MLEngine():
 				df_train_each = df_train_raw[df_train_raw[self.split]==name]
 				df_test_each = df_test_raw[df_test_raw[self.split]==name]
 				df_train = df_train_each[self.attributes]
-				df_test = df_train_each[self.attributes]
+				df_test = df_test_each[self.attributes]
 				if df_train.size == 0 or df_test.size == 0:
 					continue
 #				if name == 'MWT2':
