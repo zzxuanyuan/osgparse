@@ -9,7 +9,7 @@ import numpy as np
 
 class SlidingWindow:
 
-	def __init__(self, job_instances_file, attribute = "DesktopEndDateMinute", train_window_size = 20, test_window_size = 1):
+	def __init__(self, job_instances_file, attribute = "DesktopEndDateMinute", train_window_size = 20, test_window_size = 5):
 		self.df = pd.read_csv(job_instances_file, header=0)
 		self.attribute = attribute
 		if attribute != "DesktopEndDateMinute":
@@ -97,6 +97,7 @@ class SlidingWindow:
 		self.cur_train_attr_end = self.index_list[self.cur_train_index_end]
 		self.cur_test_attr_start = self.index_list[self.cur_test_index_start]
 		self.cur_test_attr_end = self.index_list[self.cur_test_index_end]
+		print self.cur_train_attr_start, self.cur_train_attr_end, self.cur_test_attr_start, self.cur_test_attr_end
 		accumulate_line = 0
 		self.next_window_index = self.cur_train_index_start + self.test_window_size
 		for idx in range(self.cur_train_index_start, self.cur_train_index_end + 1):
@@ -111,7 +112,8 @@ class SlidingWindow:
 			print "ERROR: attribute is no damn DesktopEndDateMinute!"
 			return -1
 #		self.df_test = self.df[self.cur_test_line_start:][(self.df["DesktopStartDateMinute"] <= self.cur_test_attr_start) & (self.df["DesktopEndDateMinute"] > self.cur_test_attr_start)]
-		self.df_test = self.df.loc[self.cur_test_line_start:].query('DesktopStartDateMinute <= @self.cur_test_attr_start and DesktopEndDateMinute > @self.cur_test_attr_start')
+#		self.df_test = self.df.loc[self.cur_test_line_start:].query('DesktopStartDateMinute <= @self.cur_test_attr_start and DesktopEndDateMinute > @self.cur_test_attr_start')
+		self.df_test = self.df.loc[self.cur_test_line_start:].query('DesktopStartDateMinute <= @self.cur_test_attr_start and DesktopEndDateMinute > @self.cur_test_attr_start and DesktopEndDateMinute <= @self.cur_test_attr_end')
 #		print "cur_train_attr_start = ", self.cur_train_attr_start, "cur_train_attr_end = ", self.cur_train_attr_end
 #		print "cur_test_attr_start = ", self.cur_test_attr_start, "cur_test_attr_end = ", self.cur_test_attr_end
 #		print "df_train = ", self.df_train

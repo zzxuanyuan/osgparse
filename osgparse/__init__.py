@@ -113,7 +113,7 @@ def plot(**opts):
 
 def classify(**opts):
 	snapshot_date_list = []
-	window = osgparse.slidingwindow.SlidingWindow(opts['jobinstances'])
+	window = osgparse.slidingwindow.SlidingWindow(opts['jobinstances'], "DesktopEndDateMinute", 50000, 10000)
 	res = 0
 	labels = window.get_values('Class')
 	if opts['resource'] == None:
