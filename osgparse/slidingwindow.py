@@ -9,7 +9,7 @@ import numpy as np
 
 class SlidingWindow:
 
-	def __init__(self, job_instances_file, attribute = "DesktopEndDateMinute", train_window_size = 20, test_window_size = 5):
+	def __init__(self, job_instances_file, attribute = "DesktopEndDateMinute", train_window_size = 20, test_window_size = 5, skip = False, skip_total_run = 100):
 		self.df = pd.read_csv(job_instances_file, header=0)
 		self.attribute = attribute
 		if attribute != "DesktopEndDateMinute":
@@ -17,6 +17,14 @@ class SlidingWindow:
 			return -1
 		self.value_counts = self.df[attribute].value_counts()
 		self.index_list = sorted(self.value_counts.index)
+		self.skip = skip
+		if skip is True:
+			self.skip_total_run = skip_total_run
+			self.index_position = 0
+			self.skip_distance = len(self.index_list)/skip_total_run
+			print self.index_list
+			print "self.index_list's length = ", len(self.index_list)
+			print "self.skip_distance = ", self.skip_distance
 		self.train_window_size = train_window_size
 		self.test_window_size = test_window_size
 		self.cur_train_attr_start = None
@@ -84,9 +92,20 @@ class SlidingWindow:
 			self.next_window_line_start = 0
 		else:
 			# find right attrribute positions to avoid reaching the end of data
-			self.cur_train_index_start += self.test_window_size
-			self.cur_train_attr_start = self.index_list[self.cur_train_index_start]
-			self.cur_train_line_start = self.next_window_line_start
+			if self.skip is True:
+				print "self_cur_train_index_start = ", self.cur_train_index_start
+				self.cur_train_index_start += self.skip_distance
+#				if self.cur_train_index_start >= len(self.index_list):
+#					print "Reach the end"
+#					return "EOF"
+				self.cur_train_attr_start = self.index_list[self.cur_train_index_start]
+				print "attribute = ", self.attribute
+				print "self.cur_train_attr_start = ", self.cur_train_attr_start
+				self.cur_train_line_start = self.df[self.df[self.attribute]==self.cur_train_attr_start].index[0]
+			else:
+				self.cur_train_index_start += self.test_window_size
+				self.cur_train_attr_start = self.index_list[self.cur_train_index_start]
+				self.cur_train_line_start = self.next_window_line_start
 
 		self.cur_train_index_end = self.cur_train_index_start + self.train_window_size - 1
 		self.cur_test_index_start = self.cur_train_index_end + 1
@@ -112,6 +131,7 @@ class SlidingWindow:
 		self.cur_test_line_end = self.cur_test_line_start + accumulate_line - 1
 		self.df_train = self.df[self.cur_train_line_start:self.cur_train_line_end+1]
 		self.df_test = self.df[self.cur_test_line_start:self.cur_test_line_end+1]
+#		self.df_test = self.df.loc[self.cur_test_line_start:].query('DesktopStartDateMinute <= @self.cur_test_attr_start and DesktopEndDateMinute > @self.cur_test_attr_start')
 		if self.attribute != "DesktopEndDateMinute":
 			print "ERROR: attribute is no damn DesktopEndDateMinute!"
 			return -1

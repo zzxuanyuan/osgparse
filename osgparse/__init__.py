@@ -113,7 +113,7 @@ def plot(**opts):
 
 def classify(**opts):
 	snapshot_date_list = []
-	window = osgparse.slidingwindow.SlidingWindow(opts['jobinstances'], "DesktopEndDateMinute", 50000, 10000)
+	window = osgparse.slidingwindow.SlidingWindow(opts['jobinstances'], "DesktopEndDateMinute", 10000, 1000, True, 10)
 	res = 0
 	labels = window.get_values('Class')
 	if opts['resource'] == None:
@@ -134,9 +134,20 @@ def classify(**opts):
 	confusion_matrix = mle.get_confusion_matrix()
 	print "printing final confusion matrix: "
 	print confusion_matrix
+	confusion_matrix_sum_dict = dict()
 	for name in names:
-		print "printing ", name, " confusion matrix: "
+		print "matrix: "
 		print mle.get_confusion_matrix_dict(name)
+		print "sum row : "
+		print np.sum(mle.get_confusion_matrix_dict(name), axis=1)
+		if mle.get_confusion_matrix_dict(name).size > 0:
+			sum_row = np.sum(mle.get_confusion_matrix_dict(name), axis=1)
+			confusion_matrix_sum_dict[name] = sum_row[1] # 1 is the preemption index: the second row
+		else:
+			confusion_matrix_sum_dict[name] = 0
+	for key, value in sorted(confusion_matrix_sum_dict.iteritems(), key=lambda (k,v): (v,k), reverse=True):
+		print "printint confusion matrix for ", key, " : "
+		print mle.get_confusion_matrix_dict(key)
 
 def predict(**opts):
 	snapshot_date_list = []

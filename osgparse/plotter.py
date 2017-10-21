@@ -138,7 +138,7 @@ class Plotter:
 			print ts_array.shape[0], ts.shape[0]
 			ts.plot(color='red', label='Total Running Jobs')
 			total_running_jobs, = plt.plot(range(self.series_size), ts_array, color='red', label='Total Running Jobs')
-			retire_jobs, = plt.plot(range(self.series_size),job_retire_num_array,label='Retire Jobs',color='orange')
+			retire_jobs, = plt.plot(range(self.series_size),job_retire_num_array,label='Retire Jobs',color='orange', marker='o')
 			a1 = plt.gca()
 #			a1.set_title("Different Types of Jobs vs. Total Running Jobs")
 			a1.set_xlim(xmin=0)
@@ -151,7 +151,7 @@ class Plotter:
 
 			p2 = plt.subplot(6,2,2)
 			ts.plot(color='red', label='Total Running Jobs')
-			plt.plot(range(self.series_size),job_retire_num_array,label='Retire Jobs',color='orange')
+			plt.plot(range(self.series_size),job_retire_num_array,label='Retire Jobs',color='orange', marker='o')
 			a2 = plt.gca()
 #			a2.set_title("(Log Scale)")
 			a2.set_xlim(xmin=0)
@@ -163,7 +163,7 @@ class Plotter:
 
 			p3 = plt.subplot(6,2,3)
 			ts.plot(color='red', label='Total Running Jobs')
-			kill_jobs, = plt.plot(range(self.series_size),job_kill_num_array,label='Kill Jobs',color='y')
+			kill_jobs, = plt.plot(range(self.series_size),job_kill_num_array,label='Kill Jobs',color='y', marker='o')
 			a3 = plt.gca()
 			a3.set_xlim(xmin=0)
 			a3.set_ylim(ymin=0)
@@ -174,7 +174,7 @@ class Plotter:
 
 			p4 = plt.subplot(6,2,4)
 			ts.plot(color='red', label='Total Running Jobs')
-			plt.plot(range(self.series_size),job_kill_num_array,label='Kill Jobs',color='y')
+			plt.plot(range(self.series_size),job_kill_num_array,label='Kill Jobs',color='y', marker='o')
 			a4 = plt.gca()
 			a4.set_xlim(xmin=0)
 			a4.set_xticks(self._get_positions())
@@ -185,7 +185,7 @@ class Plotter:
 
 			p5 = plt.subplot(6,2,5)
 			ts.plot(color='red', label='Total Running Jobs')
-			preemption_jobs, = plt.plot(range(self.series_size),job_preemption_num_array,label='Preemption Jobs',color='g')
+			preemption_jobs, = plt.plot(range(self.series_size),job_preemption_num_array,label='Preemption Jobs',color='g', marker='o')
 			a5 = plt.gca()
 			a5.set_ylabel("Preemption")
 			a5.set_xlim(xmin=0)
@@ -196,7 +196,7 @@ class Plotter:
 
 			p6 = plt.subplot(6,2,6)
 			ts.plot(color='red', label='Total Running Jobs')
-			plt.plot(range(self.series_size),job_preemption_num_array,label='Preemption Jobs',color='g')
+			plt.plot(range(self.series_size),job_preemption_num_array,label='Preemption Jobs',color='g', marker='o')
 			a6 = plt.gca()
 			a6.set_xlim(xmin=0)
 			a6.set_xticks(self._get_positions())
@@ -206,7 +206,7 @@ class Plotter:
 
 			p7 = plt.subplot(6,2,7)
 			ts.plot(color='red', label='Total Running Jobs')
-			networkissue_jobs, = plt.plot(range(self.series_size),job_networkissue_num_array,label='NetworkIssue Jobs',color='b')
+			networkissue_jobs, = plt.plot(range(self.series_size),job_networkissue_num_array,label='NetworkIssue Jobs',color='b', marker='o')
 			a7 = plt.gca()
 			a7.set_xlim(xmin=0)
 			a7.set_ylim(ymin=0)
@@ -217,7 +217,7 @@ class Plotter:
 
 			p8 = plt.subplot(6,2,8)
 			ts.plot(color='red', label='Total Running Jobs')
-			plt.plot(range(self.series_size),job_networkissue_num_array,label='NetworkIssue Jobs',color='b')
+			plt.plot(range(self.series_size),job_networkissue_num_array,label='NetworkIssue Jobs',color='b', marker='o')
 			a8 = plt.gca()
 			a8.set_xlim(xmin=0)
 			a8.set_xticks(self._get_positions())
@@ -228,7 +228,7 @@ class Plotter:
 
 			p9 = plt.subplot(6,2,9)
 			ts.plot(color='red', label='Total Running Jobs')
-			recycle_jobs, = plt.plot(range(self.series_size),job_recycle_num_array,label='Recycle Jobs',color='c')
+			recycle_jobs, = plt.plot(range(self.series_size),job_recycle_num_array,label='Recycle Jobs',color='c', marker='o')
 			a9 = plt.gca()
 			a9.set_xlim(xmin=0)
 			a9.set_ylim(ymin=0)
@@ -239,7 +239,7 @@ class Plotter:
 
 			p10 = plt.subplot(6,2,10)
 			ts.plot(color='red', label='Total Running Jobs')
-			plt.plot(range(self.series_size),job_recycle_num_array,label='Recycle Jobs',color='c')
+			plt.plot(range(self.series_size),job_recycle_num_array,label='Recycle Jobs',color='c', marker='o')
 			a10 = plt.gca()
 			a10.set_xlim(xmin=0)
 			a10.set_xticks(self._get_positions())
@@ -250,7 +250,7 @@ class Plotter:
 
 			p11 = plt.subplot(6,2,11)
 			ts.plot(color='red', label='Total Running Jobs')
-			total_ending_jobs, = plt.plot(range(self.series_size),job_total_num_array,label='Total Ending Jobs',color='purple')
+			total_ending_jobs, = plt.plot(range(self.series_size),job_total_num_array,label='Total Ending Jobs',color='purple', marker='o')
 			a11 = plt.gca()
 			a11.set_xlim(xmin=0)
 			a11.set_ylim(ymin=0)
@@ -264,7 +264,7 @@ class Plotter:
 
 			p12 = plt.subplot(6,2,12)
 			ts.plot(color='red', label='Total Running Jobs')
-			plt.plot(range(self.series_size),job_total_num_array,label='Total Ending Jobs',color='purple')
+			plt.plot(range(self.series_size),job_total_num_array,label='Total Ending Jobs',color='purple', marker='o')
 			a12 = plt.gca()
 			a12.set_xlim(xmin=0)
 			a12.set_xticks(self._get_positions())
