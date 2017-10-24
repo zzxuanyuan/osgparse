@@ -1,14 +1,18 @@
+from sklearn.preprocessing import label_binarize
+from sklearn.multiclass import OneVsRestClassifier
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import confusion_matrix, roc_curve, auc
 from sklearn.cross_validation import cross_val_score
 from sklearn.cross_validation import cross_val_predict
 import numpy as np
+import csv
+import sys
 
 class DecisionTree():
 	def __init__(self):
 		self.confusion_matrix = np.matrix([])
-		self.y_test
-		self.y_score
+		self.y_test = np.array([])
+		self.y_score = np.array([])
 
 	def predict(self, df_train, df_test, labels):
 		tree = DecisionTreeClassifier(criterion='entropy', max_depth=5, random_state=0)
@@ -30,8 +34,7 @@ class DecisionTree():
 		y_test = df_test.loc[:,df_test.columns == 'Class'].values[:,0]
 		y_test = label_binarize(y_test, classes=labels)
 		self.y_test = y_test
-		self.y_score = classifier.fit(x_train, y_train).decision_function(x_test)
-		print y_score
+		self.y_score = classifier.fit(x_train, y_train).predict_proba(x_test)
 		print self.y_score
 
 	def crossval(self, df, cv, n_jobs):
