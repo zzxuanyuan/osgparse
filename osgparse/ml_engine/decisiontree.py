@@ -7,6 +7,8 @@ import numpy as np
 class DecisionTree():
 	def __init__(self):
 		self.confusion_matrix = np.matrix([])
+		self.y_test
+		self.y_score
 
 	def predict(self, df_train, df_test, labels):
 		tree = DecisionTreeClassifier(criterion='entropy', max_depth=5, random_state=0)
@@ -17,6 +19,20 @@ class DecisionTree():
 		tree.fit(x_train, y_train)
 		y_predict = tree.predict(x_test)
 		self.confusion_matrix = confusion_matrix(y_test, y_predict, labels)
+
+	def classify(self, df_train, df_test, labels):
+		classifier = OneVsRestClassifier(DecisionTreeClassifier(criterion='entropy', max_depth=5, random_state=0))
+		x_train = df_train.loc[:,df_train.columns != 'Class'].values
+		y_train = df_train.loc[:,df_train.columns == 'Class'].values[:,0]
+		print labels
+		y_train = label_binarize(y_train, classes=labels)
+		x_test = df_test.loc[:,df_test.columns != 'Class'].values
+		y_test = df_test.loc[:,df_test.columns == 'Class'].values[:,0]
+		y_test = label_binarize(y_test, classes=labels)
+		self.y_test = y_test
+		self.y_score = classifier.fit(x_train, y_train).decision_function(x_test)
+		print y_score
+		print self.y_score
 
 	def crossval(self, df, cv, n_jobs):
 		tree = DecisionTreeClassifier(criterion='entropy', max_depth=5, random_state=0)
@@ -35,3 +51,9 @@ class DecisionTree():
 
 	def get_confusion_matrix(self):
 		return self.confusion_matrix
+
+	def get_y_test(self):
+		return self.y_test
+
+	def get_y_score(self):
+		return self.y_score

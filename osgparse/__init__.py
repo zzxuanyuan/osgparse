@@ -19,6 +19,8 @@ import osgparse.utils
 import osgparse.filter_engine
 import numpy as np
 import pandas as pd
+from sklearn.metrics import confusion_matrix, roc_curve, auc
+import matplotlib.pyplot as plt
 
 __version__ = '0.1.1'
 
@@ -148,6 +150,80 @@ def classify(**opts):
 	for key, value in sorted(confusion_matrix_sum_dict.iteritems(), key=lambda (k,v): (v,k), reverse=True):
 		print "printint confusion matrix for ", key, " : "
 		print mle.get_confusion_matrix_dict(key)
+
+def classify_roc(**opts):
+	snapshot_date_list = []
+	window = osgparse.slidingwindow.SlidingWindow(opts['jobinstances'], "DesktopEndDateMinute", 10000, 1000, True, 10)
+	res = 0
+	labels = window.get_values('Class')
+	if opts['resource'] == None:
+		names = window.get_values('ResourceNames')
+	else:
+		names = [opts['resource']]
+	mle = osgparse.ml_engine.ml_engine.MLEngine(labels, names, opts['classificationmodel'], 'ResourceNames')
+	data_tuple = (pd.DataFrame(), pd.DataFrame())
+	while(1):
+		data_tuple = window.slide()
+		if data_tuple == "EOF":
+			break
+		data_train = data_tuple[0]
+		data_test = data_tuple[1]
+		mle.classify(data_train, data_test)
+	y_test = mle.get_y_test_total()
+	y_score = mle.get_y_score_total()
+	# Compute ROC curve and ROC area for each class
+	fpr = dict()
+	tpr = dict()
+	roc_auc = dict()
+	for i in range(len(labels)):
+		fpr[i], tpr[i], _ = roc_curve(y_test[:, i], y_score[:, i])
+		roc_auc[i] = auc(fpr[i], tpr[i])
+		# Compute micro-average ROC curve and ROC area
+		fpr["micro"], tpr["micro"], _ = roc_curve(y_test.ravel(), y_score.ravel())
+		roc_auc["micro"] = auc(fpr["micro"], tpr["micro"])
+	plt.figure()
+	lw = 2
+	for i in range(len(labels)):
+		plt.plot(fpr[i], tpr[i], lw=lw, label=labels[i]+'(area = %0.2f)' % roc_auc[i])
+	plt.plot([0, 1], [0, 1], color='navy', lw=lw, linestyle='--')
+	plt.xlim([0.0, 1.0])
+	plt.ylim([0.0, 1.05])
+	plt.xlabel('False Positive Rate')
+	plt.ylabel('True Positive Rate')
+	plt.title('ROC Curve of Different Classes')
+	plt.legend(loc="lower right")
+	file_name = 'roc.png'
+	file_name = '/Users/zhezhang/osgparse/figures/' + file_name
+	plt.savefig(file_name)
+	plt.show()
+	for name in names:
+		fpr = dict()
+		tpr = dict()
+		roc_auc = dict()
+		y_test_name = mle.get_y_test_total_dict(name)
+		y_score_name = mle.get_y_score_total_dict(name)
+		if y_test_name.size == 0 and y_score_name.size == 0:
+			break
+		for i in range(len(labels)):
+			fpr[i], tpr[i], _ = roc_curve(y_test_name[:, i], y_score_name[:, i])
+			roc_auc[i] = auc(fpr[i], tpr[i])
+			# Compute micro-average ROC curve and ROC area
+			fpr["micro"], tpr["micro"], _ = roc_curve(y_test_name.ravel(), y_score_name.ravel())
+		plt.figure()
+		lw = 2
+		for i in range(len(labels)):
+			plt.plot(fpr[i], tpr[i], lw=lw, label=labels[i]+'(area = %0.2f)' % roc_auc[i])
+		plt.plot([0, 1], [0, 1], color='navy', lw=lw, linestyle='--')
+		plt.xlim([0.0, 1.0])
+		plt.ylim([0.0, 1.05])
+		plt.xlabel('False Positive Rate')
+		plt.ylabel('True Positive Rate')
+		plt.title('ROC Curve of Different Classes')
+		plt.legend(loc="lower right")
+		file_name = name + '_roc.png'
+		file_name = '/Users/zhezhang/osgparse/figures/' + file_name
+		plt.savefig(file_name)
+		plt.show()
 
 def predict(**opts):
 	snapshot_date_list = []

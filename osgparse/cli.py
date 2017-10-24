@@ -60,6 +60,8 @@ def main(args=None):
 		osgparse.plot(**opts)
 	elif args.command == "classify":
 		osgparse.classify(**opts)
+	elif args.command == "roc":
+		osgparse.classify_roc(**opts)
 	elif args.command == "predict":
 		osgparse.predict(**opts)
 	elif args.command == "crossval":
