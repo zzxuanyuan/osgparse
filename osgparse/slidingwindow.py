@@ -130,8 +130,8 @@ class SlidingWindow:
 			accumulate_line += self.value_counts[self.index_list[idx]]
 		self.cur_test_line_end = self.cur_test_line_start + accumulate_line - 1
 		self.df_train = self.df[self.cur_train_line_start:self.cur_train_line_end+1]
-		self.df_test = self.df[self.cur_test_line_start:self.cur_test_line_end+1]
-#		self.df_test = self.df.loc[self.cur_test_line_start:].query('DesktopStartDateMinute <= @self.cur_test_attr_start and DesktopEndDateMinute > @self.cur_test_attr_start')
+#		self.df_test = self.df[self.cur_test_line_start:self.cur_test_line_end+1]
+		self.df_test = self.df.loc[self.cur_test_line_start:].query('DesktopStartDateMinute <= @self.cur_test_attr_start and DesktopEndDateMinute > @self.cur_test_attr_start')
 		if self.attribute != "DesktopEndDateMinute":
 			print "ERROR: attribute is no damn DesktopEndDateMinute!"
 			return -1

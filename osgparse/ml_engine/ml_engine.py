@@ -60,7 +60,7 @@ class MLEngine():
 			df_test = df_test_raw[self.attributes]
 			self.model.predict(df_train, df_test)
 			if self.confusion_matrix.size == 0:
-				self.confusion_matrix = self.model.get_confusion_matrix()
+				self.confusion_matrix = copy.deepcopy(self.model.get_confusion_matrix())
 			else:
 				self.confusion_matrix += self.model.get_confusion_matrix()
 		else:
@@ -78,9 +78,9 @@ class MLEngine():
 #					print "origin confusion_matrix: ",self.model.get_confusion_matrix()
 #					print "origin confusion_matrix_dict[MWT2]: ",self.confusion_matrix_dict[name]
 				if self.confusion_matrix_dict[name].size == 0:
-					self.confusion_matrix_dict[name] = self.model.get_confusion_matrix()
+					self.confusion_matrix_dict[name] = copy.deepcopy(self.model.get_confusion_matrix())
 					if self.confusion_matrix.size == 0:
-						self.confusion_matrix = self.model.get_confusion_matrix()
+						self.confusion_matrix = copy.deepcopy(self.model.get_confusion_matrix())
 					else:
 						self.confusion_matrix += self.model.get_confusion_matrix()
 				else:
@@ -88,7 +88,7 @@ class MLEngine():
 #					print "and ", self.model.get_confusion_matrix()
 					self.confusion_matrix_dict[name] += self.model.get_confusion_matrix()
 					if self.confusion_matrix.size == 0:
-						self.confusion_matrix = self.model.get_confusion_matrix()
+						self.confusion_matrix = copy.deepcopy(self.model.get_confusion_matrix())
 					else:
 						self.confusion_matrix += self.model.get_confusion_matrix()
 
@@ -102,8 +102,8 @@ class MLEngine():
 			df_test = df_test_raw[self.attributes]
 			self.model.classify(df_train, df_test)
 			if self.y_score_total.size == 0 and self.y_test_total.size == 0:
-				self.y_test_total = self.model.get_y_test()
-				self.y_score_total = self.model.get_y_score()
+				self.y_test_total = copy.deepcopy(self.model.get_y_test())
+				self.y_score_total = copy.deepcopy(self.model.get_y_score())
 			else:
 				self.y_test_total = np.concatenate((self.y_test_total, self.model.get_y_test()), axis=0)
 				self.y_score_total = np.concatenate((self.y_score_total, self.model.get_y_score()), axis=0)
@@ -117,11 +117,11 @@ class MLEngine():
 					continue
 				self.model.classify(df_train, df_test, self.labels)
 				if self.y_test_total_dict[name].size == 0 and self.y_score_total_dict[name].size == 0:
-					self.y_test_total_dict[name] = self.model.get_y_test()
-					self.y_score_total_dict[name] = self.model.get_y_score()
+					self.y_test_total_dict[name] = copy.deepcopy(self.model.get_y_test())
+					self.y_score_total_dict[name] = copy.deepcopy(self.model.get_y_score())
 					if self.y_test_total.size == 0 and self.y_score_total.size == 0:
-						self.y_test_total = self.model.get_y_test()
-						self.y_score_total = self.model.get_y_score()
+						self.y_test_total = copy.deepcopy(self.model.get_y_test())
+						self.y_score_total = copy.deepcopy(self.model.get_y_score())
 					else:
 						self.y_test_total = np.concatenate((self.y_test_total, self.model.get_y_test()), axis=0)
 						self.y_score_total = np.concatenate((self.y_score_total, self.model.get_y_score()), axis=0)
@@ -129,8 +129,8 @@ class MLEngine():
 					self.y_test_total_dict[name] = np.concatenate((self.y_test_total_dict[name], self.model.get_y_test()), axis=0)
 					self.y_score_total_dict[name] = np.concatenate((self.y_score_total_dict[name], self.model.get_y_score()), axis=0)
 					if self.y_test_total.size == 0 and self.y_score_total.size == 0:
-						self.y_test_total = self.model.get_y_test()
-						self.y_score_total = self.model.get_y_score()
+						self.y_test_total = copy.deepcopy(self.model.get_y_test())
+						self.y_score_total = copy.deepcopy(self.model.get_y_score())
 					else:
 						self.y_test_total = np.concatenate((self.y_test_total, self.model.get_y_test()), axis=0)
 						self.y_score_total = np.concatenate((self.y_score_total, self.model.get_y_score()), axis=0)

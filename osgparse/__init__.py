@@ -115,7 +115,7 @@ def plot(**opts):
 
 def classify(**opts):
 	snapshot_date_list = []
-	window = osgparse.slidingwindow.SlidingWindow(opts['jobinstances'], "DesktopEndDateMinute", 10000, 1000, True, 10)
+	window = osgparse.slidingwindow.SlidingWindow(opts['jobinstances'], "DesktopEndDateMinute", 5000, 1, True, 1000)
 	res = 0
 	labels = window.get_values('Class')
 	if opts['resource'] == None:
@@ -137,6 +137,7 @@ def classify(**opts):
 	print "printing final confusion matrix: "
 	print confusion_matrix
 	confusion_matrix_sum_dict = dict()
+	"""
 	for name in names:
 		print "matrix: "
 		print mle.get_confusion_matrix_dict(name)
@@ -150,10 +151,14 @@ def classify(**opts):
 	for key, value in sorted(confusion_matrix_sum_dict.iteritems(), key=lambda (k,v): (v,k), reverse=True):
 		print "printint confusion matrix for ", key, " : "
 		print mle.get_confusion_matrix_dict(key)
+        """
+	for name in names:
+		print "printing confusion matrix for ", name, " : "
+		print mle.get_confusion_matrix_dict(name)
 
 def classify_roc(**opts):
 	snapshot_date_list = []
-	window = osgparse.slidingwindow.SlidingWindow(opts['jobinstances'], "DesktopEndDateMinute", 10000, 1000, True, 10)
+	window = osgparse.slidingwindow.SlidingWindow(opts['jobinstances'], "DesktopEndDateMinute", 1000, 1, True, 1000)
 	res = 0
 	labels = window.get_values('Class')
 	if opts['resource'] == None:

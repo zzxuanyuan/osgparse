@@ -53,7 +53,7 @@ class Plotter:
 	def plot_time_series(self, resource, label):
 		if resource != None and label != None:
 			fig = plt.figure()
-			p1 = plt.subplot(1,2,1)
+			p1 = plt.subplot(2,1,1)
 			job_num_array = np.array([np.nan] * self.series_size)
 			df = self.job_instances[(self.job_instances['ResourceNames']==resource) & (self.job_instances['Class']==label)]
 			minutes = df['DesktopEndDateMinute'].value_counts()
@@ -67,7 +67,7 @@ class Plotter:
 			print np.sort(temp)[-200:]
 			print temp.argsort()[-200:][::-1]
 #			print job_num_array[120959],job_num_array[41027],job_num_array[41014],job_num_array[41015],job_num_array[41016]
-			ts.plot(color='red')
+			ts.plot(color='red', fontsize=14)
 			ts_array = ts.values
 			total_running_jobs, = plt.plot(range(self.series_size), ts_array, color='red', label='Total Running Jobs')
 			preemption_jobs, = plt.plot(range(self.series_size),job_num_array,color='blue', label='Preemption Jobs')
@@ -75,14 +75,14 @@ class Plotter:
 			a1.set_xlim(xmin=0)
 			a1.set_ylim(ymin=0)
 			ylabel = 'Number of Job Instances'
-			a1.set_ylabel(ylabel)
+			a1.set_ylabel(ylabel, fontsize=14)
 			a1.set_xticks(self._get_positions())
 			a1.set_xticklabels(self.day_list,rotation=50,fontsize=9)
 			for index, tick in enumerate(a1.xaxis.get_ticklabels()):
 				if index % 5 != 0:
 					tick.set_visible(False)
-			plt.grid()
-			p2 = plt.subplot(1,2,2)
+#			plt.grid()
+			p2 = plt.subplot(2,1,2)
 			ts.plot(color='red')
 			plt.plot(range(self.series_size),job_num_array,color='blue')
 			a2 = plt.gca()
@@ -92,12 +92,37 @@ class Plotter:
 			for index, tick in enumerate(a2.xaxis.get_ticklabels()):
 				if index % 5 != 0:
 					tick.set_visible(False)
-			plt.grid()
+#			plt.grid()
 			plt.yscale('log')
 			fig.legend([total_running_jobs, preemption_jobs],['Total Running Jobs','Preemption Jobs'], ncol=2, loc='lower center', bbox_to_anchor=(0,0.9,1,1), borderaxespad=0)
 			file_name = resource + '_' + label + '_timeseries'
 			file_name = '/Users/zhezhang/osgparse/figures/' + file_name
 			plt.savefig(file_name)
+			plt.show()
+
+			fig = plt.figure()
+			job_num_array = np.array([np.nan] * self.series_size)
+			df = self.job_instances[(self.job_instances['ResourceNames']==resource) & (self.job_instances['Class']==label)]
+			minutes = df['DesktopEndDateMinute'].value_counts()
+			for m in minutes.index:
+				job_num_array[m] = minutes[m]
+			ts = self.time_series[resource]
+			ts.plot(color='red', fontsize=14)
+			ts_array = ts.values
+			total_running_jobs, = plt.plot(range(self.series_size), ts_array, color='red', label='Total Running Jobs')
+			preemption_jobs, = plt.plot(range(self.series_size),job_num_array,color='blue', label='Preemption Jobs')
+			a1 = plt.gca()
+			a1.set_xlim(xmin=0)
+			ylabel = 'Number of Job Instances'
+			a1.set_ylabel(ylabel, fontsize=14)
+			a1.set_xticks(self._get_positions())
+			a1.set_xticklabels(self.day_list,rotation=50,fontsize=9)
+			for index, tick in enumerate(a1.xaxis.get_ticklabels()):
+				if index % 5 != 0:
+					tick.set_visible(False)
+			plt.yscale('log')
+			fig.legend([total_running_jobs, preemption_jobs],['Total Running Jobs','Preemption Jobs'], ncol=2, loc='lower center', bbox_to_anchor=(0,0.9,1,1), borderaxespad=0)
+			plt.grid()
 			plt.show()
 		elif label == None:
 			if resource == None:
@@ -280,25 +305,28 @@ class Plotter:
 	def plot_preemption_distribution(self):
 		df = self.job_instances
 		maxval = df['PreemptionFrequency'].max()
+		print "maxval = ", maxval
 		freq_list = list()
 		total = len(df['JobId'].value_counts())
-		print 'total = ',total
 		preempt = df[df['Class']=='Preemption']
-		print len(preempt['JobId'].value_counts())
-		print len(preempt[preempt['PreemptionFrequency']>0]['JobId'].value_counts())
 		for i in range(0, maxval+1):
-			preempt = preempt[preempt['PreemptionFrequency'] > i]
-			freq = len(preempt['JobId'].value_counts())
-			prob = freq * 1.0 / total
+			if i == 0:
+				preempt = df[df['Class']=='Preemption']
+				freq = len(preempt['JobId'].value_counts())
+				prob = freq * 1.0 / total
+			else:
+				preempt = preempt[preempt['PreemptionFrequency'] > i]
+				freq = len(preempt['JobId'].value_counts())
+				prob = freq * 1.0 / total
 			freq_list.append(prob)
-		print freq,prob
+			print total,freq,prob
 		print freq_list
 		plt.figure()
 		plt.bar(range(1,len(freq_list)+1),freq_list)
 #		plt.title('Distribution of Preemption Probability')
 		ax = plt.gca()
-		ax.set_xlabel("Preemption Occurrences of Each Job")
-		ax.set_ylabel("Ratio to the Total Number of Jobs")
+		ax.set_xlabel("Preemption Occurrences of Each Job", fontsize=14)
+		ax.set_ylabel("Ratio to the Total Number of Jobs", fontsize=14)
 		ax.set_xlim(xmin=0)
 		ax.set_ylim(ymin=0)
 		zoomin = plt.axes([0.35,0.2,0.5,0.5])
@@ -789,16 +817,16 @@ class Plotter:
 		value_count = df[attr].value_counts()
 		value_count = value_count / len(df.index)
 		if attr == 'ResourceNames':
-			ax = value_count.plot(kind='bar', rot=90)
+			ax = value_count.plot(kind='bar', rot=90, fontsize=9)
 			xticklabels_old = ax.get_xticklabels()
 			for key in name_dict:
 				print key, name_dict[key]
 			xticklabels_new = [name_dict[name.get_text()] for name in xticklabels_old]
 			ax.set_xticklabels(xticklabels_new)
-			plt.xlabel('Clusters')
+			plt.xlabel('Clusters', fontsize=14)
 		else:
-			ax = value_count.plot(kind='bar', rot=0)
-		plt.ylabel('Percentage to Total Number of Jobs')
+			ax = value_count.plot(kind='bar', rot=0, fontsize=9)
+		plt.ylabel('Percentage to Total Number of Jobs', fontsize=14)
 		if attr == 'ResourceNames':
 			zoomin = plt.axes([0.4,0.3,0.5,0.5])
 			value_count = value_count[0:10]
