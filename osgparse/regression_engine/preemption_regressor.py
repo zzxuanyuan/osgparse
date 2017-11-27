@@ -47,15 +47,15 @@ class PreemptionRegressor:
 		self.diff_dict = {'<-150':0, '-150~-135':0, '-135~-120':0, '-120~-105':0, '-105~-90':0, '-90~-75':0, '-75~-60':0, '-60~-45':0, '-45~-30':0, '-30~-15':0, '-15~0':0, '0~15':0, '15~30':0, '30~45':0, '45~60':0, '60~75':0, '75~90':0, '90~105':0, '105~120':0, '120~135':0, '135~150':0, '>150':0}
 
 	def predict(self, df_train, df_test, cur_desktop_time):
+		print "df_train = "
+		print df_train
+		print "df_test = "
+		print df_test
 		assert self.attributes == ['DesktopStartDateMinute','DesktopEndDateMinute']
 		if len(df_train.index) < 20:
 			self.total_miss_job_number += len(df_test.index)
 			return -1
 		df_test = df_test[df_test['DesktopEndDateMinute'] < cur_desktop_time+1000]
-		print "df_train = ",
-		print print_full(df_train)
-		print "df_test = ",
-		print print_full(df_test)
 
 		desktop_end_date_minute_predict = np.array([])
 		desktop_max_diff = np.array([])##
@@ -115,6 +115,8 @@ class PreemptionRegressor:
 				self.diff_dict['>150'] += 1
 
 	def _get_fault_tolerance_minute(self):
+		print "in _get_fault_tolerance_minute"
+		print self.diff_dict
 		print self.total_predict_job_number, self.total_miss_job_number
 		return self.diff_dict
 
@@ -131,7 +133,7 @@ class PreemptionRegressor:
 
 	def plot_fault_tolerance_rate(self):
 		abs_diff_index = np.array(['0~15', '15~30', '30~45', '45~60', '60~75', '75~90', '90~105', '105~120', '120~135', '135~150', '>150'])
-		abs_diff_dict = {'0~15':self.diff_dict['-15~0']+self.diff_dict['0~15'], '15~30':self.diff_dict['-30~-15']+self.diff_dict['15~30'], '30~45':self.diff_dict['-45~-30']+self.diff_dict['30~45'], '45~60':self.diff_dict['-60~-45']+self.diff_dict['45~60'], '60~75':self.diff_dict['-75~-60']+self.diff_dict['60~75'], '75~90':self.diff_dict['-90~-75']+self.diff_dict['75~90'], '90~105':self.diff_dict['-105~-90']+self.diff_dict['90~105'], '105~120':self.diff_dict['-120~-105']+self.diff_dict['105~120'], '120~135':self.diff_dict['-135~-120']+self.diff_dict['120~135'], '135~150':self.diff_dict['-150~-135']+self.diff_dict['135~150']}
+		abs_diff_dict = {'0~15':self.diff_dict['-15~0']+self.diff_dict['0~15'], '15~30':self.diff_dict['-30~-15']+self.diff_dict['15~30'], '30~45':self.diff_dict['-45~-30']+self.diff_dict['30~45'], '45~60':self.diff_dict['-60~-45']+self.diff_dict['45~60'], '60~75':self.diff_dict['-75~-60']+self.diff_dict['60~75'], '75~90':self.diff_dict['-90~-75']+self.diff_dict['75~90'], '90~105':self.diff_dict['-105~-90']+self.diff_dict['90~105'], '105~120':self.diff_dict['-120~-105']+self.diff_dict['105~120'], '120~135':self.diff_dict['-135~-120']+self.diff_dict['120~135'], '135~150':self.diff_dict['-150~-135']+self.diff_dict['135~150'], '>150':self.diff_dict['<-150']+self.diff_dict['>150']}
 		abs_prob_array = np.array([])
 		for idx in abs_diff_index:
 			abs_prob_array = np.append(abs_prob_array, abs_diff_dict[idx]*1.0/self.total_predict_job_number)

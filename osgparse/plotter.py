@@ -122,7 +122,7 @@ class Plotter:
 					tick.set_visible(False)
 			plt.yscale('log')
 			fig.legend([total_running_jobs, preemption_jobs],['Total Running Jobs','Preemption Jobs'], ncol=2, loc='lower center', bbox_to_anchor=(0,0.9,1,1), borderaxespad=0)
-			plt.grid()
+#			plt.grid()
 			plt.show()
 		elif label == None:
 			if resource == None:
@@ -302,6 +302,159 @@ class Plotter:
 			fig.legend([total_running_jobs, retire_jobs, kill_jobs, preemption_jobs, networkissue_jobs, recycle_jobs, total_ending_jobs],['Total Running Jobs','Retire Jobs','Kill Jobs','Preemption Jobs','NetworkIssue Jobs','Recycle Jobs','Total Ending Jobs'], ncol=7, loc='lower center', bbox_to_anchor=(0,0.9,1,1), borderaxespad=0)
 			plt.show()
 
+	def plot_duration_distribution(self):
+		df = self.job_instances
+		""" Begin of plotting five duration distribution """
+		### ----- Retire ------ ###
+		fig = plt.figure()
+#		duration_retire = df[(df['Class']=='Retire') & (df['Duration']<36000)]['Duration']
+		duration_retire = df[(df['Class']=='Retire')]['Duration']
+		plt.subplot(511)
+		duration_retire.plot.hist(bins=10000, color='orange', label='Retire')
+		ax = plt.gca()
+		ax.set_xlim(0,61000)
+#		ax.set_xlim(0,36000)
+		ax.set_ylim(0,120000)
+		ax.set_xticklabels([])
+		for tick in ax.yaxis.get_major_ticks():
+			tick.label.set_fontsize(7)
+		ax.set_ylabel('')
+#		ax.set_yscale('log')
+		plt.legend(loc='upper right')
+		### ----- Kill ------ ###
+#		duration_kill = df[(df['Class']=='Kill') & (df['Duration']<36000)]['Duration']
+		duration_kill = df[(df['Class']=='Kill')]['Duration']
+		plt.subplot(512)
+		duration_kill.plot.hist(bins=10000, color='y', label='Kill')
+		ax = plt.gca()
+		ax.set_xlim(0,61000)
+#		ax.set_xlim(0,36000)
+		ax.set_ylim(0,120000)
+		ax.set_xticklabels([])
+		for tick in ax.yaxis.get_major_ticks():
+			tick.label.set_fontsize(7)
+		ax.set_ylabel('')
+#		ax.set_yscale('log')
+		plt.legend(loc='upper right')
+		### ----- Preemption ------ ###
+#		duration_preemption = df[(df['Class']=='Preemption') & (df['Duration']<36000)]['Duration']
+		duration_preemption = df[(df['Class']=='Preemption')]['Duration']
+		plt.subplot(513)
+		duration_preemption.plot.hist(bins=10000, color='g', label='Preemption')
+		ax = plt.gca()
+		ax.set_xlim(0,61000)
+#		ax.set_xlim(0,36000)
+		ax.set_ylim(0,120000)
+		ax.set_xticklabels([])
+		for tick in ax.yaxis.get_major_ticks():
+	        	tick.label.set_fontsize(7)
+		ax.set_ylabel('Number of Jobs')
+#		ax.set_yscale('log')
+		plt.legend(loc='upper right')
+		### ----- NetworkIssue ------ ###
+#		duration_networkissue = df[(df['Class']=='NetworkIssue') & (df['Duration']<36000)]['Duration']
+		duration_networkissue = df[(df['Class']=='NetworkIssue')]['Duration']
+		plt.subplot(514)
+		duration_networkissue.plot.hist(bins=10000, color='b', label='NetworkIssue')
+		ax = plt.gca()
+		ax.set_xlim(0,61000)
+#		ax.set_xlim(0,36000)
+		ax.set_ylim(0,120000)
+		ax.set_xticklabels([])
+		for tick in ax.yaxis.get_major_ticks():
+			tick.label.set_fontsize(7)
+		ax.set_ylabel('')
+#		ax.set_yscale('log')
+		plt.legend(loc='upper right')
+		### ----- Recycle ------ ###
+#		duration_recycle = df[(df['Class']=='Recycle') & (df['Duration']<36000)]['Duration']
+		duration_recycle = df[(df['Class']=='Recycle')]['Duration']
+		plt.subplot(515)
+		duration_recycle.plot.hist(bins=10000, color='c', label='Recycle')
+		ax = plt.gca()
+		ax.set_xlim(0,61000)
+#		ax.set_xlim(0,36000)
+		ax.set_ylim(0,120000)
+		ax.set_xticks([0, 3600, 7200, 10800, 14400, 18000, 21600, 25200, 28800, 32400, 36000, 39600, 43200, 46800, 50400, 54000, 57600])
+		ax.set_xticklabels(['0', '1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16'])
+		for tick in ax.yaxis.get_major_ticks():
+	        	tick.label.set_fontsize(7)
+		ax.set_ylabel('')
+#		ax.set_yscale('log')
+		ax.set_xlabel('Duration (hours)')
+		plt.legend(loc='upper right')
+		print duration_retire.max, duration_kill.max, duration_preemption.max, duration_networkissue.max, duration_recycle.max
+		plt.show()
+		file_name = "durationdistribution.png"
+		file_name = '/Users/zhezhang/osgparse/figures/' + file_name
+		fig.savefig(file_name)
+		""" End of plotting five duration distribution """
+		duration_kill = df[(df['Class']=='Kill')]['Duration']
+		fig = plt.figure()
+		duration_kill.plot.hist(bins=10000, color='y', label='Kill')
+		ax = plt.gca()
+		ax.set_xlim(0,61000)
+		ax.set_xticks([0, 3600, 7200, 10800, 14400, 18000, 21600, 25200, 28800, 32400, 36000, 39600, 43200, 46800, 50400, 54000, 57600])
+		ax.set_xticklabels(['0', '1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16'], fontsize=14)
+		ax.set_yticklabels([0, 500, 1000, 1500, 2000, 2500, 3000], fontsize=14)
+		ax.set_xlabel('Duration (hours)', fontsize=14)
+		ax.set_ylabel('Number of Jobs', fontsize=14)
+		plt.legend(loc='upper right', prop={'size': 16})
+		plt.tight_layout()
+		plt.show()
+		file_name = "kill_durationdistribution.png"
+		file_name = '/Users/zhezhang/osgparse/figures/' + file_name
+		fig.savefig(file_name)
+		duration_networkissue = df[(df['Class']=='NetworkIssue')]['Duration']
+		fig = plt.figure()
+		duration_networkissue.plot.hist(bins=10000, color='b', label='NetworkIssue')
+		ax = plt.gca()
+		ax.set_xlim(0,61000)
+		ax.set_xticks([0, 3600, 7200, 10800, 14400, 18000, 21600, 25200, 28800, 32400, 36000, 39600, 43200, 46800, 50400, 54000, 57600])
+		ax.set_xticklabels(['0','1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16'], fontsize=14)
+		ax.set_yticklabels([0, 20, 40, 60, 80, 100], fontsize=14)
+		ax.set_xlabel('Duration (hours)', fontsize=14)
+		ax.set_ylabel('Number of Jobs', fontsize=14)
+		plt.legend(loc='upper left', prop={'size': 16})
+		plt.tight_layout()
+		plt.show()
+		file_name = "networkissue_durationdistribution.png"
+		file_name = '/Users/zhezhang/osgparse/figures/' + file_name
+		fig.savefig(file_name)
+		fig = plt.figure()
+		duration_retire = df[(df['Class']=='Retire') & (df['Duration']<3600)]['Duration']
+		duration_retire.plot.hist(bins=1000, color='orange', label='Retire')
+		ax = plt.gca()
+		ax.set_xlim(0,3600)
+		ax.set_xticks([0, 600, 1200, 1800, 2400, 3000, 3600])
+		ax.set_xticklabels(['0','10','20','30','40','50','60'], fontsize=14)
+		ax.set_yticklabels([0, 200, 400, 600, 800, 1000, 1200, 1400], fontsize=14)
+		ax.set_xlabel('Duration (minutes)', fontsize=14)
+		ax.set_ylabel('Number of Jobs', fontsize=14)
+		plt.legend(loc='upper left', prop={'size': 16})
+		plt.tight_layout()
+		plt.show()
+		file_name = "retire_durationlimit.png"
+		file_name = '/Users/zhezhang/osgparse/figures/' + file_name
+		fig.savefig(file_name)
+		fig = plt.figure()
+		duration_preemption = df[(df['Class']=='Preemption') & (df['Duration']<3600)]['Duration']
+		duration_preemption.plot.hist(bins=1000, color='g', label='Preemption')
+		ax = plt.gca()
+		ax.set_xlim(0,3600)
+		ax.set_xticks([0, 600, 1200, 1800, 2400, 3000, 3600])
+		ax.set_xticklabels(['0','10','20','30','40','50','60'], fontsize=14)
+		ax.set_yticklabels([0, 2000, 4000, 6000, 8000], fontsize=14)
+		ax.set_xlabel('Duration (minutes)', fontsize=14)
+		ax.set_ylabel('Number of Jobs', fontsize=14)
+		plt.legend(loc='upper right', prop={'size': 16})
+		plt.tight_layout()
+		plt.show()
+		file_name = "preemption_durationlimit.png"
+		file_name = '/Users/zhezhang/osgparse/figures/' + file_name
+		fig.savefig(file_name)
+
+
 	def plot_preemption_distribution(self):
 		df = self.job_instances
 		maxval = df['PreemptionFrequency'].max()
@@ -387,27 +540,46 @@ class Plotter:
 		fig = plt.figure(1)
 		p1 = plt.subplot(1,2,1)
 		plt.scatter(range(bin_count_prob.size), bin_count_prob)
-		plt.xlabel("Preemption Distance (Minutes)")
-		plt.ylabel("Probability Distribution")
+		ax = plt.gca()
+		ax.set_xticklabels([0, 500, 1000, 1500, 2000, 2500], fontsize=18)
+		ax.set_yticklabels([0, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35], fontsize=18)
+		plt.xlim(0, 2800)
+		plt.ylim(0, 0.38)
+		plt.xlabel("Preemption Distance (Minutes)", fontsize=18)
+		plt.ylabel("Probability Distribution", fontsize=18)
 		p2 = plt.subplot(1,2,2)
 		plt.scatter(range(bin_count_cumu.size), bin_count_cumu)
-		plt.xlabel("Preemption Distance (Minutes)")
-		plt.ylabel("Cumulative Probability Distribution")
+		plt.xlabel("Preemption Distance (Minutes)", fontsize=18)
+		plt.ylabel("Cumulative Probability Distribution", fontsize=18)
+		ax = plt.gca()
+		ax.set_xticklabels([0, 500, 1000, 1500, 2000, 2500], fontsize=18)
+		ax.set_yticklabels([0, 0.2, 0.4, 0.6, 0.8, 1.0], fontsize=18)
+		plt.xlim(0, 2800)
+		plt.ylim(0, 1.1)
 		file_name = resource + '_' + label + '_preemptiondistancedist'
 		file_name = '/Users/zhezhang/osgparse/figures/' + file_name
 		fig.savefig(file_name)
+		print "test test test"
 		plt.show()
 		fig = plt.figure(2)
 		p1 = plt.subplot(1,2,1)
 		plt.scatter(range(bin_count_prob.size), bin_count_prob)
-		plt.xlabel("Preemption Distance (Minutes)")
-		plt.ylabel("Probability Distribution")
+		plt.xlabel("Preemption Distance (Minutes)", fontsize=18)
+		plt.ylabel("Probability Distribution", fontsize=18)
+		ax = plt.gca()
+		ax.set_xticklabels([0, 10, 20, 30, 40, 50, 60], fontsize=18)
+		ax.set_yticklabels([0, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35], fontsize=18)
 		plt.xlim(0, 60)
+		plt.ylim(0, 0.38)
 		p2 = plt.subplot(1,2,2)
 		plt.scatter(range(bin_count_cumu.size), bin_count_cumu)
-		plt.xlabel("Preemption Distance (Minutes)")
-		plt.ylabel("Cumulative Probability Distribution")
+		plt.xlabel("Preemption Distance (Minutes)", fontsize=18)
+		plt.ylabel("Cumulative Probability Distribution", fontsize=18)
+		ax = plt.gca()
+		ax.set_xticklabels([0, 10, 20, 30, 40, 50, 60], fontsize=18)
+		ax.set_yticklabels([0, 0.2, 0.4, 0.6, 0.8, 1.0], fontsize=18)
 		plt.xlim(0, 60)
+		plt.ylim(0, 1.1)
 		file_name = resource + '_' + label + '_preemptiondistancedist_1hour'
 		file_name = '/Users/zhezhang/osgparse/figures/' + file_name
 		fig.savefig(file_name)
@@ -415,6 +587,21 @@ class Plotter:
 #		plt.scatter(range(len(corr)),corr)
 #		plt.scatter(range(job_num_array.shape[0]), job_num_array)
 #		plt.show()
+		fig = plt.figure(3)
+		plt.scatter(range(bin_count_cumu.size), bin_count_cumu)
+		plt.xlabel("Preemption Distance (Hours)", fontsize=18)
+		plt.ylabel("Cumulative Probability Distribution", fontsize=18)
+		ax = plt.gca()
+		ax.set_xticks([0, 120, 240, 360, 480, 600, 720])
+		ax.set_xticklabels(['0','2','4','6','8','10','12'], fontsize=18)
+		ax.set_yticklabels([0, 0.2, 0.4, 0.6, 0.8, 1.0], fontsize=18)
+		plt.xlim(0, 720)
+		plt.ylim(0, 1.1)
+		file_name = resource + '_' + label + '_preemptiondistancedist_new'
+		file_name = '/Users/zhezhang/osgparse/figures/' + file_name
+		fig.savefig(file_name)
+		print "test test test"
+		plt.show()
 
 	def plot_time_point(self, resource, timepoint):
 		timepoint = int(timepoint)
@@ -517,14 +704,14 @@ class Plotter:
 		fig1 = plt.figure(1)
 		plt.scatter(range(bin_count_retire_prob.size), bin_count_retire_prob, label='Retire')
 		plt.scatter(range(bin_count_kill_prob.size), bin_count_kill_prob, label='Kill')
-#		ax = plt.gca()
+		ax = plt.gca()
 #		ax.set_xticks([0,10,20,30,40,50,60,70,80,90,100])
-#		ax.set_xticklabels(['0','10%','20%','30%','40%','50%','60%','70%','80%','90%','100%'],rotation=40,fontsize=12)
+		ax.set_xticklabels([0, 1000, 2000, 3000, 4000, 5000, 6000, 7000], fontsize=18)
 #		ax.set_yticks([0,0.02,0.04,0.06,0.08,0.10,0.12,0.14,0.16,0.18,0.20,0.22,0.24,0.26,0.28,0.30])
-#		ax.set_yticklabels(['0','0.02','0.04','0.06','0.08','0.10','0.12','0.14','0.16','0.18','0.20','0.22','0.24','0.26','0.28','0.30'],fontsize=12)
-		plt.xlabel('Max Retire and Kill Time (Minutes)', fontsize=14)
-		plt.ylabel('Probability', fontsize=14)
-		plt.legend(loc='upper right',prop={'size':12})
+		ax.set_yticklabels([0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06], fontsize=18)
+		plt.xlabel('Max Retire and Kill Time (Minutes)', fontsize=18)
+		plt.ylabel('Probability', fontsize=18)
+		plt.legend(loc='upper right',prop={'size':18})
 		plt.xlim(xmin=0)
 		plt.ylim(ymin=0)
 		plt.grid()
@@ -540,14 +727,14 @@ class Plotter:
 		fig2 = plt.figure(2)
 		plt.scatter(range(bin_count_retire_cumu.size), bin_count_retire_cumu, label='Retire')
 		plt.scatter(range(bin_count_kill_cumu.size), bin_count_kill_cumu, label='Kill')
-#		ax = plt.gca()
+		ax = plt.gca()
 #		ax.set_xticks([0,10,20,30,40,50,60,70,80,90,100])
-#		ax.set_xticklabels(['0','10%','20%','30%','40%','50%','60%','70%','80%','90%','100%'],rotation=40,fontsize=12)
+		ax.set_xticklabels([0, 1000, 2000, 3000, 4000, 5000, 6000, 7000], fontsize=18)
 #		ax.set_yticks([0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0])
-#		ax.set_yticklabels(['0','0.1','0.2','0.3','0.4','0.5','0.6','0.7','0.8','0.9','1.0'])
-		plt.xlabel('Max Retire and Kill Time (Minutes)', fontsize=14)
-		plt.ylabel('Cumulative Probability', fontsize=14)
-		plt.legend(loc='lower right',prop={'size':12})
+		ax.set_yticklabels([0, 0.2, 0.4, 0.6, 0.8, 1.0], fontsize=18)
+		plt.xlabel('Max Retire and Kill Time (Minutes)', fontsize=18)
+		plt.ylabel('Cumulative Probability', fontsize=18)
+		plt.legend(loc='lower right',prop={'size':18})
 		plt.xlim(xmin=0)
 		plt.ylim(ymin=0)
 		plt.grid()
@@ -631,14 +818,14 @@ class Plotter:
 		fig1 = plt.figure(1)
 		plt.scatter(range(bin_count_retire_prob.size), bin_count_retire_prob, label='Retire')
 		plt.scatter(range(bin_count_kill_prob.size), bin_count_kill_prob, label='Kill')
-#		ax = plt.gca()
+		ax = plt.gca()
 #		ax.set_xticks([0,10,20,30,40,50,60,70,80,90,100])
-#		ax.set_xticklabels(['0','10%','20%','30%','40%','50%','60%','70%','80%','90%','100%'],rotation=40,fontsize=12)
+		ax.set_xticklabels([0, 500, 1000, 1500, 2000, 2500], fontsize=18)
 #		ax.set_yticks([0,0.02,0.04,0.06,0.08,0.10,0.12,0.14,0.16,0.18,0.20,0.22,0.24,0.26,0.28,0.30])
-#		ax.set_yticklabels(['0','0.02','0.04','0.06','0.08','0.10','0.12','0.14','0.16','0.18','0.20','0.22','0.24','0.26','0.28','0.30'],fontsize=12)
-		plt.xlabel('Runtime Prediction Fault Percentage (%)', fontsize=14)
-		plt.ylabel('Probability', fontsize=14)
-		plt.legend(loc='upper right',prop={'size':12})
+		ax.set_yticklabels([0, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30], fontsize=18)
+		plt.xlabel('Runtime Prediction Fault Percentage (%)', fontsize=18)
+		plt.ylabel('Probability', fontsize=18)
+		plt.legend(loc='upper right',prop={'size':18})
 		plt.xlim(xmin=0)
 		plt.ylim(ymin=0)
 		plt.grid()
@@ -654,14 +841,14 @@ class Plotter:
 		fig2 = plt.figure(2)
 		plt.scatter(range(bin_count_retire_prob.size), bin_count_retire_prob, label='Retire')
 		plt.scatter(range(bin_count_kill_prob.size), bin_count_kill_prob, label='Kill')
-#		ax = plt.gca()
+		ax = plt.gca()
 #		ax.set_xticks([0,10,20,30,40,50,60,70,80,90,100])
-#		ax.set_xticklabels(['0','10%','20%','30%','40%','50%','60%','70%','80%','90%','100%'],rotation=40,fontsize=12)
+		ax.set_xticklabels([0, 20, 40, 60, 80, 100], fontsize=18)
 #		ax.set_yticks([0,0.02,0.04,0.06,0.08,0.10,0.12,0.14,0.16,0.18,0.20,0.22,0.24,0.26,0.28,0.30])
-#		ax.set_yticklabels(['0','0.02','0.04','0.06','0.08','0.10','0.12','0.14','0.16','0.18','0.20','0.22','0.24','0.26','0.28','0.30'],fontsize=12)
-		plt.xlabel('Runtime Prediction Fault Percentage (%)', fontsize=14)
-		plt.ylabel('Probability', fontsize=14)
-		plt.legend(loc='upper right',prop={'size':12})
+		ax.set_yticklabels([0, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30], fontsize=18)
+		plt.xlabel('Runtime Prediction Fault Percentage (%)', fontsize=18)
+		plt.ylabel('Probability', fontsize=18)
+		plt.legend(loc='upper right',prop={'size':18})
 		plt.xlim(xmin=0, xmax=100)
 		plt.ylim(ymin=0)
 		plt.grid()
@@ -677,14 +864,14 @@ class Plotter:
 		fig3 = plt.figure(3)
 		plt.scatter(range(bin_count_retire_cumu.size), bin_count_retire_cumu, label='Retire')
 		plt.scatter(range(bin_count_kill_cumu.size), bin_count_kill_cumu, label='Kill')
-#		ax = plt.gca()
+		ax = plt.gca()
 #		ax.set_xticks([0,10,20,30,40,50,60,70,80,90,100])
-#		ax.set_xticklabels(['0','10%','20%','30%','40%','50%','60%','70%','80%','90%','100%'],rotation=40,fontsize=12)
-#		ax.set_yticks([0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0])
-#		ax.set_yticklabels(['0','0.1','0.2','0.3','0.4','0.5','0.6','0.7','0.8','0.9','1.0'])
-		plt.xlabel('Runtime Prediction Fault Percentage (%)', fontsize=14)
-		plt.ylabel('Cumulative Probability', fontsize=14)
-		plt.legend(loc='lower right',prop={'size':12})
+		ax.set_xticklabels([0, 500, 1000, 1500, 2000, 2500], fontsize=18)
+#		ax.set_yticks([0,0.02,0.04,0.06,0.08,0.10,0.12,0.14,0.16,0.18,0.20,0.22,0.24,0.26,0.28,0.30])
+		ax.set_yticklabels([0, 0.2, 0.4, 0.6, 0.8, 1.0], fontsize=18)
+		plt.xlabel('Runtime Prediction Fault Percentage (%)', fontsize=18)
+		plt.ylabel('Cumulative Probability', fontsize=18)
+		plt.legend(loc='lower right',prop={'size':18})
 		plt.xlim(xmin=0)
 		plt.ylim(ymin=0)
 		plt.grid()
@@ -700,14 +887,14 @@ class Plotter:
 		fig4 = plt.figure(4)
 		plt.scatter(range(bin_count_retire_cumu.size), bin_count_retire_cumu, label='Retire')
 		plt.scatter(range(bin_count_kill_cumu.size), bin_count_kill_cumu, label='Kill')
-#		ax = plt.gca()
+		ax = plt.gca()
 #		ax.set_xticks([0,10,20,30,40,50,60,70,80,90,100])
-#		ax.set_xticklabels(['0','10%','20%','30%','40%','50%','60%','70%','80%','90%','100%'],rotation=40,fontsize=12)
-#		ax.set_yticks([0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0])
-#		ax.set_yticklabels(['0','0.1','0.2','0.3','0.4','0.5','0.6','0.7','0.8','0.9','1.0'])
-		plt.xlabel('Runtime Prediction Fault Percentage (%)', fontsize=14)
-		plt.ylabel('Cumulative Probability', fontsize=14)
-		plt.legend(loc='lower right',prop={'size':12})
+		ax.set_xticklabels([0, 20, 40, 60, 80, 100], fontsize=18)
+#		ax.set_yticks([0,0.02,0.04,0.06,0.08,0.10,0.12,0.14,0.16,0.18,0.20,0.22,0.24,0.26,0.28,0.30])
+		ax.set_yticklabels([0, 0.2, 0.4, 0.6, 0.8, 1.0], fontsize=18)
+		plt.xlabel('Runtime Prediction Fault Percentage (%)', fontsize=18)
+		plt.ylabel('Cumulative Probability', fontsize=18)
+		plt.legend(loc='center right',prop={'size':18})
 		plt.xlim(xmin=0, xmax=100)
 		plt.ylim(ymin=0)
 		plt.grid()
@@ -845,5 +1032,102 @@ class Plotter:
 		plt.savefig(file_name)
 		plt.show()
 
-	def plot_duration(self, label):
-		pass
+	def plot_duration(self):
+		df = self.job_instances
+		""" Begin of plotting five duration distribution """
+		### ----- Retire ------ ###
+		fig = plt.figure()
+#		duration_retire = df[(df['Class']=='Retire') & (df['Duration']<36000)]['Duration']
+		duration_retire = df[(df['Class']=='Retire')]['Duration']
+		hist, bins = np.histogram(duration_retire, bins=10000)
+		print np.cumsum(hist)
+		cumulative_distribution = np.cumsum(hist)
+		plt.plot(bins[:-1], cumulative_distribution*1.0/cumulative_distribution[-1], color='orange', label='Retire')
+#		duration_retire.plot.hist(cumulative=True, bins=10000, color='orange', label='Retire')
+		ax = plt.gca()
+#		ax.set_xlim(0,61000)
+#		ax.set_xlim(0,36000)
+		ax.set_xlim(0,210000)
+		ax.set_xticklabels([])
+		for tick in ax.yaxis.get_major_ticks():
+			tick.label.set_fontsize(7)
+		ax.set_ylabel('')
+#		ax.set_yscale('log')
+		plt.legend(loc='upper right')
+		### ----- Kill ------ ###
+#		duration_kill = df[(df['Class']=='Kill') & (df['Duration']<36000)]['Duration']
+		duration_kill = df[(df['Class']=='Kill')]['Duration']
+		hist, bins = np.histogram(duration_kill, normed=True, bins=10000)
+		cumulative_distribution = np.cumsum(hist)
+		plt.plot(bins[:-1], cumulative_distribution*1.0/cumulative_distribution[-1], color='y', label='Kill')
+#		duration_kill.plot.hist(cumulative=True, bins=10000, color='y', label='Kill')
+		ax = plt.gca()
+#		ax.set_xlim(0,61000)
+#		ax.set_xlim(0,36000)
+		ax.set_xlim(0,210000)
+		ax.set_xticklabels([])
+		for tick in ax.yaxis.get_major_ticks():
+			tick.label.set_fontsize(7)
+		ax.set_ylabel('')
+#		ax.set_yscale('log')
+		plt.legend(loc='upper right')
+		### ----- Preemption ------ ###
+#		duration_preemption = df[(df['Class']=='Preemption') & (df['Duration']<36000)]['Duration']
+		duration_preemption = df[(df['Class']=='Preemption')]['Duration']
+		hist, bins = np.histogram(duration_preemption, normed=True, bins=10000)
+		cumulative_distribution = np.cumsum(hist)
+		plt.plot(bins[:-1], cumulative_distribution*1.0/cumulative_distribution[-1], color='g', label='Preemption')
+#		duration_preemption.plot.hist(cumulative=True, bins=10000, color='g', label='Preemption')
+		ax = plt.gca()
+#		ax.set_xlim(0,61000)
+#		ax.set_xlim(0,36000)
+		ax.set_xlim(0,210000)
+		ax.set_xticklabels([])
+		for tick in ax.yaxis.get_major_ticks():
+	        	tick.label.set_fontsize(7)
+		ax.set_ylabel('Number of Jobs')
+#		ax.set_yscale('log')
+		plt.legend(loc='upper right')
+		### ----- NetworkIssue ------ ###
+#		duration_networkissue = df[(df['Class']=='NetworkIssue') & (df['Duration']<36000)]['Duration']
+		duration_networkissue = df[(df['Class']=='NetworkIssue')]['Duration']
+		hist, bins = np.histogram(duration_networkissue, normed=True, bins=10000)
+		cumulative_distribution = np.cumsum(hist)
+		plt.plot(bins[:-1], cumulative_distribution*1.0/cumulative_distribution[-1], color='b', label='NetworkIssue')
+#		duration_networkissue.plot.hist(cumulative=True, bins=10000, color='b', label='NetworkIssue')
+		ax = plt.gca()
+#		ax.set_xlim(0,61000)
+#		ax.set_xlim(0,36000)
+		ax.set_xlim(0,210000)
+		ax.set_xticklabels([])
+		for tick in ax.yaxis.get_major_ticks():
+			tick.label.set_fontsize(7)
+		ax.set_ylabel('')
+#		ax.set_yscale('log')
+		plt.legend(loc='upper right')
+		### ----- Recycle ------ ###
+#		duration_recycle = df[(df['Class']=='Recycle') & (df['Duration']<36000)]['Duration']
+		duration_recycle = df[(df['Class']=='Recycle')]['Duration']
+		hist, bins = np.histogram(duration_recycle, normed=True, bins=10000)
+		cumulative_distribution = np.cumsum(hist)
+		plt.plot(bins[:-1], cumulative_distribution*1.0/cumulative_distribution[-1], color='c', label='Recycle')
+#		duration_recycle.plot.hist(cumulative=True, bins=10000, color='c', label='Recycle')
+		ax = plt.gca()
+#		ax.set_xlim(0,61000)
+#		ax.set_xlim(0,36000)
+		ax.set_xlim(0,210000)
+		ax.set_xticks([0, 18000, 36000, 54000, 72000, 90000, 108000, 126000, 144000, 162000, 180000, 198000])
+		ax.set_xticklabels(['0', '5', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55'], fontsize=18)
+		for tick in ax.yaxis.get_major_ticks():
+	        	tick.label.set_fontsize(18)
+		ax.set_ylabel('Cumulative Distribution', fontsize=18)
+#		ax.set_yscale('log')
+		ax.set_xlabel('Duration (hours)', fontsize=18)
+		plt.legend(loc='lower right', prop={'size':14})
+		print duration_retire.max, duration_kill.max, duration_preemption.max, duration_networkissue.max, duration_recycle.max
+		plt.tight_layout()
+		plt.show()
+		file_name = "durationdistribution.png"
+		file_name = '/Users/zhezhang/osgparse/figures/' + file_name
+		fig.savefig(file_name)
+		""" End of plotting five duration distribution """

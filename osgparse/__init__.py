@@ -111,7 +111,9 @@ def plot(**opts):
 	elif opts['plottype'] == 'preemptiondistribution':
 		plotter.plot_preemption_distribution()
 	elif opts['plottype'] == 'duration':
-		plotter.plot_duration(opts['resource'], opts['label'])
+		plotter.plot_duration()
+	elif opts['plottype'] == 'durationlimit':
+		plotter.plot_duration_distribution()
 
 def classify(**opts):
 	snapshot_date_list = []
@@ -232,7 +234,7 @@ def classify_roc(**opts):
 
 def predict(**opts):
 	snapshot_date_list = []
-	window = osgparse.slidingwindow.SlidingWindow(opts['jobinstances'], "DesktopEndDateMinute", 20, 1)
+	window = osgparse.slidingwindow.SlidingWindow(opts['jobinstances'], "DesktopEndDateMinute", 100, 1, True, 10)
 	res = 0
 	if opts['resource'] == None:
 		names = window.get_values('ResourceNames')
@@ -264,6 +266,8 @@ def predict(**opts):
 			break
 		data_train = data_tuple[0]
 		data_test = data_tuple[1]
+		print "after sliding data_train = "
+		print data_train
 		cur_desktop_time = data_tuple[2]
 		regressor.predict(data_train, data_test, cur_desktop_time)
 		print "sample size = ", data_train.size
@@ -273,6 +277,7 @@ def predict(**opts):
 		print regressor.get_fault_tolerance()
 	fault_tolerance = regressor.get_fault_tolerance()
 	print fault_tolerance
+	regressor.plot_fault_tolerance_rate()
 
 def crossval(**opts):
 	df = pd.read_csv(opts['jobinstances'], header=0)

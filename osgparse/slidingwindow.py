@@ -135,7 +135,7 @@ class SlidingWindow:
 		if self.attribute != "DesktopEndDateMinute":
 			print "ERROR: attribute is no damn DesktopEndDateMinute!"
 			return -1
-		return (self.df_train, self.df_test)
+		return (self.df_train, self.df_test, self.cur_test_attr_start)
 
 	def get_values(self, attribute):
 		return self.df[attribute].value_counts().index
