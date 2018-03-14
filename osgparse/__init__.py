@@ -90,6 +90,8 @@ def plot(**opts):
 	plotter = osgparse.plotter.Plotter(osgparse.constants.MEASURE_DATE_DICT,opts['jobinstances'],opts['timeseries'])
 	if opts['plottype'] == 'timeseries':
 		plotter.plot_time_series(opts['resource'], opts['label'])
+	elif opts['plottype'] == 'timeseriesbar':
+		plotter.plot_time_series_bar(opts['resource'], opts['label'])
 	elif opts['plottype'] == 'jobdistance':
 		plotter.plot_job_distance(opts['resource'], opts['label'])
 	elif opts['plottype'] == 'timepoint':

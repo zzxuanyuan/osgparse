@@ -50,6 +50,126 @@ class Plotter:
 		position_list = range(1440/2, self.series_size, 1440)
 		return position_list
 
+	def plot_time_series_bar(self, resource, label):
+		if resource == None:
+			df = self.job_instances
+			ts = self.time_series['TotalJobNumber']
+		else:
+			df = self.job_instances[self.job_instances['ResourceNames']==resource]
+			ts = self.time_series[resource]
+		print "series_size = ", self.series_size
+		print "ts = ", ts.values
+		job_ts_array = np.array([0] * 84)
+		job_total_num_array = np.array([0] * 84)
+		job_retire_num_array = np.array([0] * 84)
+		job_kill_num_array = np.array([0] * 84)
+		job_preemption_num_array = np.array([0] * 84)
+		job_networkissue_num_array = np.array([0] * 84)
+		job_recycle_num_array = np.array([0] * 84)
+		minutes_total = df['DesktopEndDateMinute'].value_counts()
+		minutes_retire = df[df['Class']=='Retire']['DesktopEndDateMinute'].value_counts()
+		minutes_kill = df[df['Class']=='Kill']['DesktopEndDateMinute'].value_counts()
+		minutes_preemption = df[df['Class']=='Preemption']['DesktopEndDateMinute'].value_counts()
+		minutes_networkissue = df[df['Class']=='NetworkIssue']['DesktopEndDateMinute'].value_counts()
+		minutes_recycle = df[df['Class']=='Recycle']['DesktopEndDateMinute'].value_counts()
+
+		for m in ts.index:
+			if not pd.isnull(ts.iloc[m]):
+				job_ts_array[m/1440] += ts.iloc[m]
+		for m in minutes_total.index:
+			job_total_num_array[m/1440] += minutes_total[m]
+		for m in minutes_retire.index:
+			job_retire_num_array[m/1440] += minutes_retire[m]
+		for m in minutes_kill.index:
+			job_kill_num_array[m/1440] += minutes_kill[m]
+		for m in minutes_preemption.index:
+			job_preemption_num_array[m/1440] += minutes_preemption[m]
+		for m in minutes_networkissue.index:
+			job_networkissue_num_array[m/1440] += minutes_networkissue[m]
+		for m in minutes_recycle.index:
+			job_recycle_num_array[m/1440] += minutes_recycle[m]
+
+		fig = plt.figure()
+		p1 = plt.subplot(5,1,1)
+		ts_array = ts.values
+		job_ts_array = job_ts_array/500
+		total_running_jobs, = plt.plot(range(84), job_ts_array, color='red', label='Total Running Jobs')
+		print "job_retire_num_arry = ", job_retire_num_array, len(job_retire_num_array)
+		retire_jobs = plt.bar(range(84),job_retire_num_array,label='Retire',color='orange')
+		a1 = plt.gca()
+#			a1.set_title("Different Types of Jobs vs. Total Running Jobs")
+		a1.set_xlim(xmin=0, xmax=85)
+		a1.set_ylim(ymin=0, ymax=47000)
+		a1.set_yticks([0, 20000, 40000])
+		a1.set_yticklabels([0, 20000, 40000], fontsize=12)
+#		a1.set_ylabel("Retire")
+#		a1.set_xticks(self._get_positions())
+		a1.set_xticklabels([])
+#			plt.legend(loc='upper right', prop={'size':10})
+#		plt.grid()
+		p2 = plt.subplot(5,1,2)
+		plt.plot(range(84), job_ts_array, color='red', label='Total Running Jobs')
+		kill_jobs = plt.bar(range(84),job_kill_num_array,label='Kill',color='y')
+		a2 = plt.gca()
+#			a2.set_title("(Log Scale)")
+		a2.set_xlim(xmin=0, xmax=85)
+		a2.set_ylim(ymin=0, ymax=47000)
+		a2.set_yticks([0, 20000, 40000])
+		a2.set_yticklabels([0, 20000, 40000], fontsize=12)
+#		a2.set_xticks(self._get_positions())
+		a2.set_xticklabels([])
+#			plt.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
+#		plt.grid()
+#		plt.yscale('log')
+
+		p3 = plt.subplot(5,1,3)
+		plt.plot(range(84), job_ts_array, color='red', label='Total Running Jobs')
+		preemption_jobs = plt.bar(range(84),job_preemption_num_array,label='Preemption',color='g')
+		a3 = plt.gca()
+#		a3.set_ylabel("Preemption")
+		a3.set_xlim(xmin=0, xmax=85)
+		a3.set_ylim(ymin=0, ymax=47000)
+		a3.set_yticks([0, 20000, 40000])
+		a3.set_yticklabels([0, 20000, 40000], fontsize=12)
+#		a3.set_xticks(self._get_positions())
+		a3.set_xticklabels([])
+#		plt.grid()
+
+		p4 = plt.subplot(5,1,4)
+		plt.plot(range(84), job_ts_array, color='red', label='Total Running Jobs')
+		networkissue_jobs = plt.bar(range(84),job_networkissue_num_array,label='NetworkIssue',color='b')
+		a4 = plt.gca()
+#		a4.set_ylabel("Preemption")
+		a4.set_xlim(xmin=0, xmax=85)
+		a4.set_ylim(ymin=0, ymax=47000)
+		a4.set_yticks([0, 20000, 40000])
+		a4.set_yticklabels([0, 20000, 40000], fontsize=12)
+#		a4.set_xticks(self._get_positions())
+		a4.set_xticklabels([])
+#		plt.grid()
+
+		p5 = plt.subplot(5,1,5)
+		plt.plot(range(84), job_ts_array, color='red', label='Total Running Jobs')
+		recycle_jobs = plt.bar(range(84),job_recycle_num_array,label='Recycle',color='c')
+		a5 = plt.gca()
+#		a5.set_ylabel("Preemption")
+		a5.set_xlim(xmin=0, xmax=85)
+		a5.set_ylim(ymin=0, ymax=47000)
+		a5.set_yticks([0, 20000, 40000])
+		a5.set_yticklabels([0, 20000, 40000], fontsize=12)
+		print "day_list = ", self.day_list
+		a5.set_xticks(range(84))
+		a5.set_xticklabels(self.day_list,rotation=50,fontsize=12)
+		for index, label in enumerate(a5.xaxis.get_ticklabels()):
+			if index % 5 != 0:
+				label.set_visible(False)
+#		a5.set_xticks(self._get_positions())
+#		a5.set_xticklabels([])
+#		plt.grid()
+		fig.legend([total_running_jobs, retire_jobs, kill_jobs, preemption_jobs, networkissue_jobs, recycle_jobs],['Total Running Pilot-jobs','Retire','Kill','Preemption','NetworkIssue','Recycle'], ncol=7, loc='lower center', bbox_to_anchor=(0,0.9,1,1), borderaxespad=0)
+		plt.show()
+
+
 	def plot_time_series(self, resource, label):
 		if resource != None and label != None:
 			fig = plt.figure()
@@ -131,6 +251,7 @@ class Plotter:
 			else:
 				df = self.job_instances[self.job_instances['ResourceNames']==resource]
 				ts = self.time_series[resource]
+			print "series_size = ", self.series_size
 			job_total_num_array = np.array([np.nan] * self.series_size)
 			job_retire_num_array = np.array([np.nan] * self.series_size)
 			job_kill_num_array = np.array([np.nan] * self.series_size)
@@ -778,6 +899,7 @@ class Plotter:
 		diff_retire = np.array([])
 		for i in range(len(df_retire_array)):
 			diff_retire = np.append(diff_retire, diff_retire_abs_array[i]*1.0/df_retire_array[i]*100)
+		diff_retire = diff_retire_abs_array # just plot the absolute difference for retire jobs
 		diff_retire = diff_retire.astype(int)
 		print diff_retire
 		bin_count_retire = np.bincount(diff_retire)
@@ -801,6 +923,7 @@ class Plotter:
 		diff_kill = np.array([])
 		for i in range(len(df_kill_array)):
 			diff_kill = np.append(diff_kill, diff_kill_abs_array[i]*1.0/df_kill_array[i]*100)
+		diff_kill = diff_kill_abs_array # just plot the absolute difference for kill jobs
 		diff_kill = diff_kill.astype(int)
 		print diff_kill
 		bin_count_kill = np.bincount(diff_kill)
@@ -820,10 +943,10 @@ class Plotter:
 		plt.scatter(range(bin_count_kill_prob.size), bin_count_kill_prob, label='Kill')
 		ax = plt.gca()
 #		ax.set_xticks([0,10,20,30,40,50,60,70,80,90,100])
-		ax.set_xticklabels([0, 500, 1000, 1500, 2000, 2500], fontsize=18)
+#		ax.set_xticklabels([0, 500, 1000, 1500, 2000, 2500], fontsize=18)
 #		ax.set_yticks([0,0.02,0.04,0.06,0.08,0.10,0.12,0.14,0.16,0.18,0.20,0.22,0.24,0.26,0.28,0.30])
-		ax.set_yticklabels([0, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30], fontsize=18)
-		plt.xlabel('Runtime Prediction Fault Percentage (%)', fontsize=18)
+#		ax.set_yticklabels([0, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30], fontsize=18)
+#		plt.xlabel('Runtime Prediction Fault Percentage (%)', fontsize=18)
 		plt.ylabel('Probability', fontsize=18)
 		plt.legend(loc='upper right',prop={'size':18})
 		plt.xlim(xmin=0)
@@ -843,13 +966,13 @@ class Plotter:
 		plt.scatter(range(bin_count_kill_prob.size), bin_count_kill_prob, label='Kill')
 		ax = plt.gca()
 #		ax.set_xticks([0,10,20,30,40,50,60,70,80,90,100])
-		ax.set_xticklabels([0, 20, 40, 60, 80, 100], fontsize=18)
+#		ax.set_xticklabels([0, 20, 40, 60, 80, 100], fontsize=18)
 #		ax.set_yticks([0,0.02,0.04,0.06,0.08,0.10,0.12,0.14,0.16,0.18,0.20,0.22,0.24,0.26,0.28,0.30])
-		ax.set_yticklabels([0, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30], fontsize=18)
-		plt.xlabel('Runtime Prediction Fault Percentage (%)', fontsize=18)
+#		ax.set_yticklabels([0, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30], fontsize=18)
+#		plt.xlabel('Runtime Prediction Fault Percentage (%)', fontsize=18)
 		plt.ylabel('Probability', fontsize=18)
 		plt.legend(loc='upper right',prop={'size':18})
-		plt.xlim(xmin=0, xmax=100)
+#		plt.xlim(xmin=0, xmax=100)
 		plt.ylim(ymin=0)
 		plt.grid()
 		plt.tight_layout()
@@ -866,10 +989,10 @@ class Plotter:
 		plt.scatter(range(bin_count_kill_cumu.size), bin_count_kill_cumu, label='Kill')
 		ax = plt.gca()
 #		ax.set_xticks([0,10,20,30,40,50,60,70,80,90,100])
-		ax.set_xticklabels([0, 500, 1000, 1500, 2000, 2500], fontsize=18)
+#		ax.set_xticklabels([0, 500, 1000, 1500, 2000, 2500], fontsize=18)
 #		ax.set_yticks([0,0.02,0.04,0.06,0.08,0.10,0.12,0.14,0.16,0.18,0.20,0.22,0.24,0.26,0.28,0.30])
-		ax.set_yticklabels([0, 0.2, 0.4, 0.6, 0.8, 1.0], fontsize=18)
-		plt.xlabel('Runtime Prediction Fault Percentage (%)', fontsize=18)
+#		ax.set_yticklabels([0, 0.2, 0.4, 0.6, 0.8, 1.0], fontsize=18)
+#		plt.xlabel('Runtime Prediction Fault Percentage (%)', fontsize=18)
 		plt.ylabel('Cumulative Probability', fontsize=18)
 		plt.legend(loc='lower right',prop={'size':18})
 		plt.xlim(xmin=0)
@@ -889,13 +1012,13 @@ class Plotter:
 		plt.scatter(range(bin_count_kill_cumu.size), bin_count_kill_cumu, label='Kill')
 		ax = plt.gca()
 #		ax.set_xticks([0,10,20,30,40,50,60,70,80,90,100])
-		ax.set_xticklabels([0, 20, 40, 60, 80, 100], fontsize=18)
+#		ax.set_xticklabels([0, 20, 40, 60, 80, 100], fontsize=18)
 #		ax.set_yticks([0,0.02,0.04,0.06,0.08,0.10,0.12,0.14,0.16,0.18,0.20,0.22,0.24,0.26,0.28,0.30])
-		ax.set_yticklabels([0, 0.2, 0.4, 0.6, 0.8, 1.0], fontsize=18)
-		plt.xlabel('Runtime Prediction Fault Percentage (%)', fontsize=18)
+#		ax.set_yticklabels([0, 0.2, 0.4, 0.6, 0.8, 1.0], fontsize=18)
+#		plt.xlabel('Runtime Prediction Fault Percentage (%)', fontsize=18)
 		plt.ylabel('Cumulative Probability', fontsize=18)
 		plt.legend(loc='center right',prop={'size':18})
-		plt.xlim(xmin=0, xmax=100)
+#		plt.xlim(xmin=0, xmax=100)
 		plt.ylim(ymin=0)
 		plt.grid()
 		plt.tight_layout()
@@ -1013,7 +1136,13 @@ class Plotter:
 			plt.xlabel('Clusters', fontsize=14)
 		else:
 			ax = value_count.plot(kind='bar', rot=0, fontsize=9)
-		plt.ylabel('Percentage to Total Number of Jobs', fontsize=14)
+		if attr == 'Class':
+			ax = plt.gca()
+			ax.set_xticks([0, 1, 2, 3, 4])
+			ax.set_xticklabels(['Retire', 'Preemption', 'Recycle', 'Kill', 'NetworkIssue'], fontsize=14)
+			ax.set_yticks([0, 0.1, 0.2, 0.3, 0.4, 0.5])
+			ax.set_yticklabels([0, 0.1, 0.2, 0.3, 0.4, 0.5], fontsize=14)
+		plt.ylabel('Ratio to Total Number of Jobs', fontsize=14)
 		if attr == 'ResourceNames':
 			zoomin = plt.axes([0.4,0.3,0.5,0.5])
 			value_count = value_count[0:10]
