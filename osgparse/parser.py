@@ -375,7 +375,7 @@ class Parser:
 				GLIDEIN_ToRetire = 1494385146; TargetType = "Job"; GLIDEIN_ToDie = 1494413946; GLIDEIN_ResourceName = "cinvestav"; GLIDEIN_SITEWMS_JobId = "292780.proton" ]]
 		"""
 		start_time = line.index("#")
-		end_time = line.rfind("#")
+		end_time = line.index("#", start_time+1)
 		time = line[start_time+2:end_time]
 		body = line[end_time+1:]
 		start_list = body.index("[")
