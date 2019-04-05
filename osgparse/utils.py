@@ -47,7 +47,7 @@ def _to2labels(job_instances_file, output_file):
 				elif row['Class'] in preemption_classes:
 					row['Class'] = 'Preemption'
 				else:
-					print 'There does not exist such a class', row[-1]
+					print 'There does not exist such a class', row['Class']
 				writer.writerow(row)
 
 def _to5labels(job_instances_file, output_file):
@@ -55,9 +55,13 @@ def _to5labels(job_instances_file, output_file):
 	labels = df['Class'].value_counts().index
 	for l in labels:
 		l = str(l)
+        print len(labels)
 	print labels
 	label_set = set(labels)
-	assert label_set == preemption_classes.union(retire_classes).union(kill_classes).union(network_classes).union(recycle_classes)
+        tmp_set = preemption_classes.union(retire_classes).union(kill_classes).union(network_classes).union(recycle_classes)
+        print len(tmp_set)
+        print tmp_set
+	#assert label_set == preemption_classes.union(retire_classes).union(kill_classes).union(network_classes).union(recycle_classes)
 	with open(job_instances_file, 'r') as fr:
 		with open(output_file, 'w') as fw:
 			reader = csv.DictReader(fr)
@@ -76,5 +80,5 @@ def _to5labels(job_instances_file, output_file):
 				elif row['Class'] in preemption_classes:
 					row['Class'] = 'Preemption'
 				else:
-					print 'There does not exist such a class', row[-1]
+					print 'There does not exist such a class', row['Class']
 				writer.writerow(row)
