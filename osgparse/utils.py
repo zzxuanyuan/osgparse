@@ -72,7 +72,7 @@ def _to5labels(job_instances_file, output_file):
 				elif row['Class'] in network_classes:
 					row['Class'] = 'NetworkIssue'
 				elif row['Class'] in recycle_classes:
-					row['Class'] = 'Recycle'
+					row['Class'] = 'IdleShutDown'
 				elif row['Class'] in preemption_classes:
 					row['Class'] = 'Preemption'
 				else:
