@@ -231,43 +231,117 @@ class JobFactory:
 			if daemon_start == None:
 				daemon_start = item.daemon_start
 				if item.daemon_start == None:
-					raise ValueError("daemon_start == None")
+					print desktop_time
+					print to_retire
+					print item.job_id
+					print item.resource
+					print item.daemon_start
+					print item.time_current
+					print item.to_retire
+					print item.to_die
+					print item.site
+					print item.entry
+					print "daemon_start == None"
+					pass
+					#raise ValueError("daemon_start == None")
 			else:
 				if item.daemon_start != None:
 					# daemon_start time should be the minimum among a parallel job and that job's start_time is the very first snapshot's daemon_start
 					daemon_start = min(daemon_start,item.daemon_start)
 				else:
-					raise ValueError("Wrong daemon_start")
+					print desktop_time
+					print to_retire
+					print item.job_id
+					print item.resource
+					print item.daemon_start
+					print item.time_current
+					print item.to_retire
+					print item.to_die
+					print item.site
+					print item.entry
+					print "Wrong daemon_start"
+					pass
+					#raise ValueError("Wrong daemon_start")
 			if time_current == None:
 				time_current = item.time_current
 				if item.time_current == None:
-					raise ValueError("time_current == None")
+					print desktop_time
+					print to_retire
+					print item.job_id
+					print item.resource
+					print item.daemon_start
+					print item.time_current
+					print item.to_retire
+					print item.to_die
+					print item.site
+					print item.entry
+					print "time_current == None"
+					pass
+					#raise ValueError("time_current == None")
 			else:
 				if item.time_current != None:
 					# time_current time should be the maximum among a parallel job and that job's end_time is the very last snapshot's time_current
 					time_current = max(time_current,item.time_current)
 				else:
-					raise ValueError("Wrong time_current")
+					print desktop_time
+					print to_retire
+					print item.job_id
+					print item.resource
+					print item.daemon_start
+					print item.time_current
+					print item.to_retire
+					print item.to_die
+					print item.site
+					print item.entry
+					print "Wrong time_current"
+					pass
+					#raise ValueError("Wrong time_current")
 			if to_retire == None:
 				to_retire = item.to_retire
 				if item.to_retire == None:
+					#print desktop_time
+					#print to_retire
+					#print item.job_id
+					#print item.resource
+					#print item.daemon_start
+					#print item.time_current
+					#print item.to_retire
+					#print item.to_die
+					#print item.site
+					#print item.entry
+					#print "to_retire == None"
 					pass
 					#raise ValueError("to_retire == None")
 			else:
 				if item.to_retire != None:
 					to_retire = max(to_retire,item.to_retire)
 				else:
-					raise ValueError("Wrong to_retire")
+					print desktop_time
+					print to_retire
+					print item.job_id
+					print item.resource
+					print item.daemon_start
+					print item.time_current
+					print item.to_retire
+					print item.to_die
+					print item.site
+					print item.entry
+					print "Wrong to_retire"
+					pass
+					#raise ValueError("Wrong to_retire")
 			if to_die == None:
 				to_die = item.to_die
 				if item.to_die == None:
+					#print "to_die == None"
 					pass
 					#raise ValueError("to_die == None")
 			else:
 				if item.to_die != None:
 					to_die = max(to_die,item.to_die)
 				else:
-					raise ValueError("Wrong to_die")
+					print "Wrong to_die"
+					pass
+					#raise ValueError("Wrong to_die")
 
 #		activity = max(activity_dict.iteritems(), key=operator.itemgetter(1))[0]
 #		state =  max(state_dict.iteritems(), key=operator.itemgetter(1))[0]
@@ -409,6 +483,8 @@ class Parser:
 		for i in range(len(item_list)):
 			item = self._attr_parser(item_list[i])
 			if item == None:
+				print "item == None"
+				print desktop_time
 				return job_dict
 			if item.job_id == None:
 				item = self._handle_missing_job_id(item)
@@ -444,6 +520,11 @@ class Parser:
 		attr_list = substr.split('; ')
 		deficiency = False
 		for i in range(len(attr_list)):
+			pos = attr_list[i].find(' = ')
+			if pos < 0:
+				print "does not find = symbol"
+				print item_string
+				return None
 			[key, value] = attr_list[i].split(' = ')
 			key_strip = key.strip()
 			attr_dict[key_strip] = value.strip()
